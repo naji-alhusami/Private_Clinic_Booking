@@ -1,5 +1,5 @@
-import Image from "next/image";
+import { LandingPage } from "@/components/home/landing-page";
 
 export default function Home() {
-  return <div>Hello From Private Clinic Booking</div>;
+  return <LandingPage />;
 }
