@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import BookingStepOne from "@/components/booking/booking-step-one/booking-step-one";
-import BookingSteps from "@/components/booking/booking-steps";
+import BookingFlow from "@/components/booking/booking-flow";
 
 export const metadata: Metadata = {
   title: "Book an Appointment | NeuroCare Private Clinic",
@@ -10,15 +9,11 @@ export const metadata: Metadata = {
 
 export default function BookAppointmentPage() {
   return (
-    <main className="relative overflow-hidden bg-[#f7faf9] px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
-      <div
-        aria-hidden="true"
-        className="absolute -left-40 top-20 size-96 rounded-full bg-teal-100/60 blur-3xl"
-      />
-      <div
-        aria-hidden="true"
-        className="absolute -right-32 top-96 size-80 rounded-full bg-cyan-100/50 blur-3xl"
-      />
+    <main className="relative bg-[#f7faf9] px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
+      <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
+        <div className="absolute -left-40 top-20 size-96 rounded-full bg-teal-100/60 blur-3xl" />
+        <div className="absolute -right-32 top-96 size-80 rounded-full bg-cyan-100/50 blur-3xl" />
+      </div>
 
       <div className="relative mx-auto max-w-4xl">
         <header className="mx-auto max-w-2xl text-center">
@@ -33,9 +28,7 @@ export default function BookAppointmentPage() {
             appointment.
           </p>
         </header>
-        {/* Booking Steps */}
-        <BookingSteps />
-        <BookingStepOne />
+        <BookingFlow />
       </div>
     </main>
   );

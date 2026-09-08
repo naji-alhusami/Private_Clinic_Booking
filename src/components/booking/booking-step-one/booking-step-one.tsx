@@ -1,12 +1,15 @@
-"use client";
 import Link from "next/link";
-import { Button } from "../../ui/button";
-import { Icon, type IconName } from "../../ui/icon";
+import type {
+  BookingData,
+  InsuranceType,
+  PatientType,
+  UpdateBookingData,
+} from "@/components/booking/booking-types";
+import { Button } from "@/components/ui/button";
+import { Icon, type IconName } from "@/components/ui/icon";
+import PatientPersonalDetails from "./patient-personal-details";
 import NewPatientDetails from "./patient-type/new-patient-details";
 import ExistingPatientDetails from "./patient-type/existing-patient-details";
-import { useState } from "react";
-
-type PatientType = "new" | "existing";
 
 const patientTypes: Array<{
   value: PatientType;
@@ -28,7 +31,11 @@ const patientTypes: Array<{
   },
 ];
 
-const insuranceTypes = [
+const insuranceTypes: Array<{
+  value: InsuranceType;
+  title: string;
+  description: string;
+}> = [
   {
     value: "gkv",
     title: "Statutory Health Insurance (GKV)",
@@ -46,6 +53,16 @@ const insuranceTypes = [
   },
 ];
 
+type ChoiceCardProps = {
+  name: string;
+  value: string;
+  title: string;
+  description: string;
+  icon?: IconName;
+  checked: boolean;
+  onChange: () => void;
+};
+
 function ChoiceCard({
   name,
   value,
@@ -54,15 +71,7 @@ function ChoiceCard({
   icon,
   checked,
   onChange,
-}: {
-  name: string;
-  value: string;
-  title: string;
-  description: string;
-  icon?: IconName;
-  checked?: boolean;
-  onChange?: () => void;
-}) {
+}: ChoiceCardProps) {
   return (
     <label className="group relative block cursor-pointer">
       <input
@@ -98,11 +107,21 @@ function ChoiceCard({
   );
 }
 
-export default function BookingStepOne() {
-  const [patientType, setPatientType] = useState<PatientType>("new");
+type BookingStepOneProps = {
+  bookingData: BookingData;
+  updateBookingData: UpdateBookingData;
+  onContinue: () => void;
+  canContinue: boolean;
+};
 
+export default function BookingStepOne({
+  bookingData,
+  updateBookingData,
+  onContinue,
+  canContinue,
+}: BookingStepOneProps) {
   return (
-    <div className="mt-10 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
+    <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
       <div className="space-y-10">
         <fieldset>
           <legend className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
@@ -115,8 +134,10 @@ export default function BookingStepOne() {
             {patientTypes.map((option) => (
               <ChoiceCard
                 key={option.value}
-                checked={patientType === option.value}
-                onChange={() => setPatientType(option.value)}
+                checked={bookingData.patientType === option.value}
+                onChange={() =>
+                  updateBookingData({ patientType: option.value })
+                }
                 name="patient-type"
                 {...option}
               />
@@ -126,8 +147,22 @@ export default function BookingStepOne() {
 
         <div className="h-px bg-slate-100" />
 
-        {patientType === "new" && <NewPatientDetails />}
-        {patientType === "existing" && <ExistingPatientDetails />}
+        {bookingData.patientType === "new" ? (
+          <NewPatientDetails
+            bookingData={bookingData}
+            updateBookingData={updateBookingData}
+          />
+        ) : (
+          <ExistingPatientDetails
+            bookingData={bookingData}
+            updateBookingData={updateBookingData}
+          />
+        )}
+
+        <PatientPersonalDetails
+          bookingData={bookingData}
+          updateBookingData={updateBookingData}
+        />
 
         <div className="h-px bg-slate-100" />
 
@@ -142,6 +177,10 @@ export default function BookingStepOne() {
             {insuranceTypes.map((option) => (
               <ChoiceCard
                 key={option.value}
+                checked={bookingData.insuranceType === option.value}
+                onChange={() =>
+                  updateBookingData({ insuranceType: option.value })
+                }
                 name="insurance-type"
                 {...option}
               />
@@ -175,12 +214,19 @@ export default function BookingStepOne() {
           <Button
             type="button"
             size="lg"
-            className="min-h-12 rounded-xl bg-teal-700 px-6 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 sm:min-w-72 cursor-pointer"
+            disabled={!canContinue}
+            onClick={onContinue}
+            className="min-h-12 cursor-pointer rounded-xl bg-teal-700 px-6 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 disabled:cursor-not-allowed sm:min-w-72"
           >
             Continue to Available Appointments
             <Icon name="arrow" data-icon="inline-end" className="size-4" />
           </Button>
         </div>
+        {!canContinue && (
+          <p className="-mt-7 text-right text-xs leading-5 text-slate-500">
+            Complete all required fields to continue.
+          </p>
+        )}
       </div>
     </div>
   );

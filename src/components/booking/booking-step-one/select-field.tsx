@@ -3,6 +3,9 @@ type SelectFieldProps = {
   label: string;
   options: string[];
   placeholder: string;
+  value: string;
+  onChange: (value: string) => void;
+  required?: boolean;
 };
 
 export default function SelectField({
@@ -10,6 +13,9 @@ export default function SelectField({
   label,
   options,
   placeholder,
+  value,
+  onChange,
+  required = false,
 }: SelectFieldProps) {
   return (
     <div>
@@ -21,7 +27,9 @@ export default function SelectField({
         <select
           id={id}
           name={id}
-          defaultValue=""
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          required={required}
           className="min-h-12 w-full appearance-none rounded-xl border border-slate-300 bg-white px-4 py-3 pr-11 text-sm text-slate-700 outline-none transition-colors hover:border-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15"
         >
           <option value="" disabled>

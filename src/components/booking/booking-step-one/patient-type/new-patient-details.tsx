@@ -1,7 +1,19 @@
 import { Icon } from "@/components/ui/icon";
+import type {
+  BookingData,
+  UpdateBookingData,
+} from "@/components/booking/booking-types";
 import SelectField from "../select-field";
 
-export default function NewPatientDetails() {
+type NewPatientDetailsProps = {
+  bookingData: BookingData;
+  updateBookingData: UpdateBookingData;
+};
+
+export default function NewPatientDetails({
+  bookingData,
+  updateBookingData,
+}: NewPatientDetailsProps) {
   return (
     <section
       aria-labelledby="new-patient-heading"
@@ -39,6 +51,11 @@ export default function NewPatientDetails() {
             "Memory or cognitive concerns",
             "Other neurological concern",
           ]}
+          value={bookingData.newPatientReason}
+          onChange={(newPatientReason) =>
+            updateBookingData({ newPatientReason })
+          }
+          required
         />
 
         <div>
@@ -52,6 +69,11 @@ export default function NewPatientDetails() {
             id="visit-description"
             name="visit-description"
             rows={5}
+            required
+            value={bookingData.visitDescription}
+            onChange={(event) =>
+              updateBookingData({ visitDescription: event.target.value })
+            }
             placeholder="Please provide a short description of your symptoms or reason for consultation."
             className="mt-2.5 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15"
           />
