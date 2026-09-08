@@ -298,6 +298,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -351,8 +352,13 @@ function ClinicBrand() {
 
 export function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   const closeMenu = () => setIsMenuOpen(false);
+
+  if (pathname.startsWith("/dashboard") || pathname === "/staff/login") {
+    return null;
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">

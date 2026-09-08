@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Icon } from "@/components/ui/icon";
 
 const footerLinks = [
@@ -10,6 +13,12 @@ const footerLinks = [
 ] as const;
 
 export function Footer() {
+  const pathname = usePathname();
+
+  if (pathname.startsWith("/dashboard") || pathname === "/staff/login") {
+    return null;
+  }
+
   return (
     <footer className="bg-slate-950 text-slate-300">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
