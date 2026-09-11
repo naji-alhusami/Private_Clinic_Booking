@@ -47,7 +47,7 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
       <dt className="text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
         {label}
       </dt>
-      <dd className="mt-1.5 break-words text-sm font-medium leading-6 text-slate-900">
+      <dd className="mt-1.5 wrap-break-word text-sm font-medium leading-6 text-slate-900">
         {value}
       </dd>
     </div>
