@@ -1,5 +1,6 @@
 "use client";
 
+import type { ClinicOpeningHours } from "@/lib/clinic-settings";
 import { useState } from "react";
 import AppointmentRequestSuccess from "@/components/booking/appointment-request-success";
 import BookingStepOne from "@/components/booking/booking-step-one/booking-step-one";
@@ -42,7 +43,7 @@ function isStepOneComplete(bookingData: BookingData) {
   return personalDetailsComplete && visitDetailsComplete;
 }
 
-export default function BookingFlow() {
+export default function BookingFlow({ openingHours }: { openingHours: ClinicOpeningHours[] }) {
   const [step, setStep] = useState<BookingStep>(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [bookingData, setBookingData] =
@@ -57,14 +58,14 @@ export default function BookingFlow() {
   const continueToStepTwo = () => {
     if (!stepOneComplete) return;
 
-    const bookingDates = generateBookingDates();
+    const bookingDates = generateBookingDates(openingHours);
     const dateIsWithinBookingWindow = bookingDates.some(
       (date) => date.date === bookingData.appointmentDate && date.isOpen,
     );
 
     if (!dateIsWithinBookingWindow) {
       updateBookingData({
-        appointmentDate: getDefaultBookingDate(bookingDates),
+        appointmentDate: getDefaultBookingDate(bookingDates, openingHours),
         appointmentTime: "",
       });
     }
@@ -90,6 +91,7 @@ export default function BookingFlow() {
 
       {step === 2 && (
         <BookingStepTwo
+          openingHours={openingHours}
           bookingData={bookingData}
           updateBookingData={updateBookingData}
           onBack={() => setStep(1)}

@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { SectionHeading } from "@/components/home/section-heading";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { getClinicOpeningHours } from "@/lib/data/clinic";
 
 const services: Array<{
   title: string;
@@ -113,23 +114,15 @@ const benefits: Array<{
   },
 ];
 
-const hours = [
-  ["Monday", "08:30 – 17:00"],
-  ["Tuesday", "08:30 – 17:00"],
-  ["Wednesday", "08:30 – 16:00"],
-  ["Thursday", "08:30 – 17:00"],
-  ["Friday", "08:30 – 13:00"],
-  ["Saturday", "Closed"],
-  ["Sunday", "Closed"],
-];
-
 const primaryButton =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-teal-700 px-6 py-3 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 outline-none transition-all hover:-translate-y-0.5 hover:bg-teal-800 hover:shadow-md focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 motion-reduce:transform-none";
 
 const secondaryButton =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-6 py-3 text-sm font-semibold text-slate-800 shadow-sm outline-none transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-900 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2";
 
-export function LandingPage() {
+export async function LandingPage() {
+  const openingHours = await getClinicOpeningHours();
+
   return (
     <main>
       <section
@@ -185,9 +178,12 @@ export function LandingPage() {
             </ul>
           </div>
 
-          <div className="relative mx-auto w-full max-w-[34rem] lg:mx-0 lg:ml-auto">
-            <div aria-hidden="true" className="absolute -inset-5 rounded-[2.5rem] border border-teal-200/60" />
-            <div className="relative aspect-[4/5] overflow-hidden rounded-[2rem] bg-slate-200 shadow-2xl shadow-slate-900/15">
+          <div className="relative mx-auto w-full max-w-136 lg:mx-0 lg:ml-auto">
+            <div
+              aria-hidden="true"
+              className="absolute -inset-5 rounded-[2.5rem] border border-teal-200/60"
+            />
+            <div className="relative aspect-4/5 overflow-hidden rounded-[2rem] bg-slate-200 shadow-2xl shadow-slate-900/15">
               <Image
                 src="/images/dr-adrian-keller.png"
                 alt="Fictional neurologist Dr. Ahmad Hussami in a private clinic"
@@ -196,11 +192,15 @@ export function LandingPage() {
                 sizes="(max-width: 1023px) 90vw, 42vw"
                 className="object-cover object-top"
               />
-              <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/55 to-transparent" />
+              <div className="absolute inset-x-0 bottom-0 h-40 bg-linear-to-t from-slate-950/55 to-transparent" />
               <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-4 rounded-2xl border border-white/30 bg-white/90 p-4 shadow-lg backdrop-blur-md sm:inset-x-6 sm:bottom-6 sm:p-5">
                 <div>
-                  <p className="font-semibold text-slate-950">Dr. Ahmad Hussami</p>
-                  <p className="mt-1 text-sm text-slate-600">Specialist in Neurology</p>
+                  <p className="font-semibold text-slate-950">
+                    Dr. Ahmad Hussami
+                  </p>
+                  <p className="mt-1 text-sm text-slate-600">
+                    Specialist in Neurology
+                  </p>
                 </div>
                 <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-teal-700 text-white">
                   <Icon name="brain" className="size-6" />
@@ -213,8 +213,12 @@ export function LandingPage() {
                   <Icon name="sparkles" className="size-5" />
                 </span>
                 <div>
-                  <p className="text-xs font-semibold text-slate-900">Thoughtful care</p>
-                  <p className="mt-0.5 text-[0.7rem] text-slate-500">Centered around you</p>
+                  <p className="text-xs font-semibold text-slate-900">
+                    Thoughtful care
+                  </p>
+                  <p className="mt-0.5 text-[0.7rem] text-slate-500">
+                    Centered around you
+                  </p>
                 </div>
               </div>
             </div>
@@ -238,7 +242,9 @@ export function LandingPage() {
               <article
                 key={service.title}
                 className={`group rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:border-teal-200 hover:shadow-xl hover:shadow-slate-900/5 motion-reduce:transform-none ${
-                  index === services.length - 1 ? "lg:col-span-3 xl:col-span-1" : ""
+                  index === services.length - 1
+                    ? "lg:col-span-3 xl:col-span-1"
+                    : ""
                 }`}
               >
                 <span className="grid size-11 place-items-center rounded-xl bg-teal-50 text-teal-700 transition-colors group-hover:bg-teal-700 group-hover:text-white">
@@ -264,7 +270,7 @@ export function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16 xl:gap-24">
             <div className="relative">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-[1.75rem] shadow-xl shadow-slate-900/10">
+              <div className="relative aspect-4/3 overflow-hidden rounded-[1.75rem] shadow-xl shadow-slate-900/10">
                 <Image
                   src="/images/consultation-room.png"
                   alt="Warm, modern neurological consultation room at NeuroCare Private Clinic"
@@ -278,7 +284,9 @@ export function LandingPage() {
                   <Icon name="shield" className="size-6" />
                 </span>
                 <div>
-                  <p className="font-semibold text-slate-950">Care built on trust</p>
+                  <p className="font-semibold text-slate-950">
+                    Care built on trust
+                  </p>
                   <p className="mt-1 text-sm leading-5 text-slate-600">
                     Unhurried visits and clear guidance at every step.
                   </p>
@@ -287,12 +295,16 @@ export function LandingPage() {
             </div>
 
             <div>
-              <SectionHeading eyebrow="Care with purpose" title="About the Practice" />
+              <SectionHeading
+                eyebrow="Care with purpose"
+                title="About the Practice"
+              />
               <p className="mt-6 text-base leading-7 text-slate-600 sm:text-lg sm:leading-8">
                 NeuroCare Private Clinic is dedicated to providing attentive,
                 personalized neurological care in a calm and professional
-                environment. We combine clinical expertise with a patient-centered
-                approach to ensure clarity, trust, and continuity of care.
+                environment. We combine clinical expertise with a
+                patient-centered approach to ensure clarity, trust, and
+                continuity of care.
               </p>
               <div className="mt-8 border-t border-slate-200 pt-8">
                 <p className="text-xs font-bold uppercase tracking-[0.18em] text-teal-700">
@@ -305,10 +317,10 @@ export function LandingPage() {
                   Specialist in Neurology
                 </p>
                 <p className="mt-4 text-sm leading-6 text-slate-600">
-                  Dr. Ahmad Hussami is a fictional specialist in neurology presented
-                  for this demo project. The profile is included to simulate a
-                  realistic private clinic website with a professional and
-                  trustworthy presentation.
+                  Dr. Ahmad Hussami is a fictional specialist in neurology
+                  presented for this demo project. The profile is included to
+                  simulate a realistic private clinic website with a
+                  professional and trustworthy presentation.
                 </p>
                 <ul className="mt-6 grid gap-3 sm:grid-cols-3">
                   {[
@@ -316,8 +328,14 @@ export function LandingPage() {
                     "Modern diagnostic approach",
                     "Long-term follow-up care",
                   ].map((item) => (
-                    <li key={item} className="flex gap-2 text-sm leading-5 text-slate-700">
-                      <Icon name="check" className="mt-0.5 size-4 shrink-0 text-teal-700" />
+                    <li
+                      key={item}
+                      className="flex gap-2 text-sm leading-5 text-slate-700"
+                    >
+                      <Icon
+                        name="check"
+                        className="mt-0.5 size-4 shrink-0 text-teal-700"
+                      />
                       {item}
                     </li>
                   ))}
@@ -343,7 +361,9 @@ export function LandingPage() {
                 <span className="grid size-11 place-items-center rounded-xl bg-white/10 text-teal-300">
                   <Icon name={benefit.icon} className="size-5" />
                 </span>
-                <h3 className="mt-5 text-lg font-semibold text-white">{benefit.title}</h3>
+                <h3 className="mt-5 text-lg font-semibold text-white">
+                  {benefit.title}
+                </h3>
                 <p className="mt-2.5 text-sm leading-6 text-slate-300">
                   {benefit.description}
                 </p>
@@ -404,27 +424,48 @@ export function LandingPage() {
         </div>
       </section>
 
-      <section id="book" aria-labelledby="book-heading" className="scroll-mt-24 bg-white px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8 lg:pb-28">
+      <section
+        id="book"
+        aria-labelledby="book-heading"
+        className="scroll-mt-24 bg-white px-4 pb-20 sm:px-6 sm:pb-24 lg:px-8 lg:pb-28"
+      >
         <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-teal-700 px-6 py-14 sm:px-10 sm:py-16 lg:px-16">
-          <div aria-hidden="true" className="absolute -right-20 -top-28 size-80 rounded-full border-[48px] border-white/5" />
-          <div aria-hidden="true" className="absolute -bottom-28 left-1/3 size-64 rounded-full bg-teal-400/10 blur-2xl" />
+          <div
+            aria-hidden="true"
+            className="absolute -right-20 -top-28 size-80 rounded-full border-[48px] border-white/5"
+          />
+          <div
+            aria-hidden="true"
+            className="absolute -bottom-28 left-1/3 size-64 rounded-full bg-teal-400/10 blur-2xl"
+          />
           <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
             <div className="max-w-2xl">
-              <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-100">Your next step</p>
-              <h2 id="book-heading" className="mt-4 text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-teal-100">
+                Your next step
+              </p>
+              <h2
+                id="book-heading"
+                className="mt-4 text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl"
+              >
                 Book Your Appointment
               </h2>
               <p className="mt-4 text-base leading-7 text-teal-50/90 sm:text-lg">
-                Schedule your visit quickly and easily. We are here to support you
-                with professional neurological care.
+                Schedule your visit quickly and easily. We are here to support
+                you with professional neurological care.
               </p>
             </div>
             <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-              <Link href="/book-appointment" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-teal-900 shadow-md outline-none transition-all hover:-translate-y-0.5 hover:bg-teal-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal-700 motion-reduce:transform-none">
+              <Link
+                href="/book-appointment"
+                className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-teal-900 shadow-md outline-none transition-all hover:-translate-y-0.5 hover:bg-teal-50 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal-700 motion-reduce:transform-none"
+              >
                 Book Appointment
                 <Icon name="arrow" className="size-4" />
               </Link>
-              <Link href="#contact" className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal-700">
+              <Link
+                href="#contact"
+                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/30 px-6 py-3 text-sm font-semibold text-white outline-none transition-colors hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-teal-700"
+              >
                 Contact Us
               </Link>
             </div>
@@ -445,21 +486,30 @@ export function LandingPage() {
           />
           <div className="mt-12 grid gap-6 lg:grid-cols-2">
             <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <h3 className="text-xl font-semibold text-slate-950">NeuroCare Private Clinic</h3>
+              <h3 className="text-xl font-semibold text-slate-950">
+                NeuroCare Private Clinic
+              </h3>
               <address className="mt-7 space-y-5 not-italic">
                 <div className="flex gap-4">
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-teal-50 text-teal-700">
                     <Icon name="map-pin" className="size-5" />
                   </span>
                   <p className="text-sm leading-6 text-slate-600">
-                    Kassel-Straße 118<br />34119 Kassel<br />Germany
+                    Kassel-Straße 118
+                    <br />
+                    34119 Kassel
+                    <br />
+                    Germany
                   </p>
                 </div>
                 <div className="flex items-center gap-4">
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-teal-50 text-teal-700">
                     <Icon name="phone" className="size-5" />
                   </span>
-                  <a href="tel:+495619876543" className="rounded text-sm font-medium text-slate-700 outline-none transition-colors hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
+                  <a
+                    href="tel:+495619876543"
+                    className="rounded text-sm font-medium text-slate-700 outline-none transition-colors hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
+                  >
                     +49 111 11111111
                   </a>
                 </div>
@@ -467,20 +517,30 @@ export function LandingPage() {
                   <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-teal-50 text-teal-700">
                     <Icon name="mail" className="size-5" />
                   </span>
-                  <a href="mailto:info@neurocare-clinic.de" className="rounded text-sm font-medium text-slate-700 outline-none transition-colors hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2">
+                  <a
+                    href="mailto:info@neurocare-clinic.de"
+                    className="rounded text-sm font-medium text-slate-700 outline-none transition-colors hover:text-teal-700 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
+                  >
                     info@neurocare-clinic.de
                   </a>
                 </div>
               </address>
 
               <div className="map-pattern relative mt-8 flex min-h-52 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-[#eef4f2]">
-                <div aria-hidden="true" className="absolute inset-0 opacity-70" />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 opacity-70"
+                />
                 <div className="relative rounded-2xl border border-white bg-white/90 px-5 py-4 text-center shadow-lg backdrop-blur">
                   <span className="mx-auto grid size-10 place-items-center rounded-full bg-teal-700 text-white shadow-md">
                     <Icon name="map-pin" className="size-5" />
                   </span>
-                  <p className="mt-3 text-sm font-semibold text-slate-900">Central Kassel</p>
-                  <p className="mt-1 text-xs text-slate-500">Kassel-Straße 118</p>
+                  <p className="mt-3 text-sm font-semibold text-slate-900">
+                    Central Kassel
+                  </p>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Kassel-Straße 118
+                  </p>
                 </div>
               </div>
             </div>
@@ -490,21 +550,45 @@ export function LandingPage() {
                 <span className="grid size-10 place-items-center rounded-xl bg-teal-50 text-teal-700">
                   <Icon name="clock" className="size-5" />
                 </span>
-                <h3 className="text-xl font-semibold text-slate-950">Opening Hours</h3>
+                <h3 className="text-xl font-semibold text-slate-950">
+                  Opening Hours
+                </h3>
               </div>
               <dl className="mt-7 divide-y divide-slate-100">
-                {hours.map(([day, time]) => (
-                  <div key={day} className="flex items-center justify-between gap-6 py-3.5 text-sm">
-                    <dt className="font-medium text-slate-700">{day}</dt>
-                    <dd className={time === "Closed" ? "text-slate-400" : "text-slate-600"}>{time}</dd>
+                {openingHours.map((item) => (
+                  <div
+                    key={item.id}
+                    className="flex justify-between gap-4 py-3 text-sm"
+                  >
+                    <dt className="font-medium text-slate-700">
+                      {item.day_of_week}
+                    </dt>
+
+                    <dd
+                      className={
+                        item.is_open ? "text-slate-600" : "text-slate-400"
+                      }
+                    >
+                      {item.is_open && item.opening_time && item.closing_time
+                        ? `${item.opening_time.slice(0, 5)} – ${item.closing_time.slice(0, 5)}`
+                        : "Closed"}
+                    </dd>
                   </div>
                 ))}
               </dl>
               <div className="mt-7 flex gap-3 rounded-2xl bg-amber-50 p-4 text-amber-950">
-                <Icon name="calendar" className="mt-0.5 size-5 shrink-0 text-amber-700" />
-                <p className="text-sm leading-6">Appointments are available by prior booking only.</p>
+                <Icon
+                  name="calendar"
+                  className="mt-0.5 size-5 shrink-0 text-amber-700"
+                />
+                <p className="text-sm leading-6">
+                  Appointments are available by prior booking only.
+                </p>
               </div>
-              <a href="tel:+495619876543" className={`${primaryButton} mt-7 w-full`}>
+              <a
+                href="tel:+495619876543"
+                className={`${primaryButton} mt-7 w-full`}
+              >
                 Call to Arrange an Appointment
               </a>
             </div>

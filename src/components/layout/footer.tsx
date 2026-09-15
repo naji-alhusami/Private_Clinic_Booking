@@ -15,7 +15,7 @@ const footerLinks = [
 export function Footer() {
   const pathname = usePathname();
 
-  if (pathname.startsWith("/dashboard") || pathname === "/staff/login") {
+  if (pathname.startsWith("/dashboard") || pathname === "/login") {
     return null;
   }
 

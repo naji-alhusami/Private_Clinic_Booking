@@ -1,3 +1,4 @@
+import { getClinicOpeningHours } from "@/lib/data/clinic";
 import type { Metadata } from "next";
 import BookingFlow from "@/components/booking/booking-flow";
 
@@ -7,7 +8,8 @@ export const metadata: Metadata = {
     "Start your private neurology appointment request with NeuroCare Private Clinic.",
 };
 
-export default function BookAppointmentPage() {
+export default async function BookAppointmentPage() {
+  const openingHours = await getClinicOpeningHours();
   return (
     <main className="relative bg-[#f7faf9] px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
@@ -28,7 +30,7 @@ export default function BookAppointmentPage() {
             appointment.
           </p>
         </header>
-        <BookingFlow />
+        <BookingFlow openingHours={openingHours} />
       </div>
     </main>
   );

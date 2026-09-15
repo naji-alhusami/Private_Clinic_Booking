@@ -1,3 +1,4 @@
+import type { ClinicOpeningHours } from "@/lib/clinic-settings";
 import { useState } from "react";
 import type {
   BookingData,
@@ -13,6 +14,7 @@ import {
 } from "./mock-availability";
 
 type BookingStepTwoProps = {
+  openingHours: ClinicOpeningHours[];
   bookingData: BookingData;
   updateBookingData: UpdateBookingData;
   onBack: () => void;
@@ -20,16 +22,17 @@ type BookingStepTwoProps = {
 };
 
 export default function BookingStepTwo({
+  openingHours,
   bookingData,
   updateBookingData,
   onBack,
   onContinue,
 }: BookingStepTwoProps) {
-  const [bookingDates] = useState(() => generateBookingDates());
+  const [bookingDates] = useState(() => generateBookingDates(openingHours));
   const selectedDate =
-    bookingData.appointmentDate || getDefaultBookingDate(bookingDates);
+    bookingData.appointmentDate || getDefaultBookingDate(bookingDates, openingHours);
   const selectedDay = bookingDates.find((day) => day.date === selectedDate);
-  const timeSlots = selectedDay ? getTimeSlotsForDate(selectedDay.date) : [];
+  const timeSlots = selectedDay ? getTimeSlotsForDate(selectedDay.date, openingHours) : [];
   const canContinue = Boolean(selectedDate && bookingData.appointmentTime);
 
   const selectDate = (date: string) => {
@@ -82,7 +85,7 @@ export default function BookingStepTwo({
           <p>Appointments can be booked up to two months in advance.</p>
           <p className="flex items-center gap-1.5">
             <span className="size-1.5 rounded-full bg-slate-300" />
-            Saturday and Sunday are closed.
+            Closed clinic days cannot be selected.
           </p>
         </div>
       </section>

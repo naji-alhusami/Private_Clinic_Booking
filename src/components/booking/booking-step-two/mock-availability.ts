@@ -1,3 +1,5 @@
+import type { ClinicOpeningHours } from "@/lib/clinic-settings";
+
 export type WeekdayName =
   | "Monday"
   | "Tuesday"
@@ -27,18 +29,12 @@ export type MockTimeSlot = {
   available: boolean;
 };
 
-export const clinicOpeningHours: Record<
-  WeekdayName,
-  OpeningHours | null
-> = {
-  Monday: { openingTime: "08:30", closingTime: "17:00" },
-  Tuesday: { openingTime: "08:30", closingTime: "17:00" },
-  Wednesday: { openingTime: "08:30", closingTime: "16:00" },
-  Thursday: { openingTime: "08:30", closingTime: "17:00" },
-  Friday: { openingTime: "08:30", closingTime: "13:00" },
-  Saturday: null,
-  Sunday: null,
-};
+function getOpeningHours(rows: ClinicOpeningHours[], weekday: WeekdayName): OpeningHours | null {
+  const row = rows.find((item) => item.day_of_week === weekday);
+  return row?.is_open && row.opening_time && row.closing_time
+    ? { openingTime: row.opening_time.slice(0, 5), closingTime: row.closing_time.slice(0, 5) }
+    : null;
+}
 
 const mockBookedTimes: Record<WeekdayName, string[]> = {
   Monday: ["09:30", "13:00", "16:00"],
@@ -114,7 +110,7 @@ function formatHours(hours: OpeningHours | null) {
   return hours ? `${hours.openingTime} – ${hours.closingTime}` : "Closed";
 }
 
-export function generateBookingDates(today = new Date()): BookingDate[] {
+export function generateBookingDates(clinicHours: ClinicOpeningHours[], today = new Date()): BookingDate[] {
   const minDate = startOfLocalDay(today);
   const maxDate = addCalendarMonths(minDate, 2);
   const dates: BookingDate[] = [];
@@ -125,7 +121,7 @@ export function generateBookingDates(today = new Date()): BookingDate[] {
     currentDate.setDate(currentDate.getDate() + 1)
   ) {
     const weekday = weekdayNames[currentDate.getDay()];
-    const openingHours = clinicOpeningHours[weekday];
+    const openingHours = getOpeningHours(clinicHours, weekday);
 
     dates.push({
       date: toLocalDateString(currentDate),
@@ -141,10 +137,10 @@ export function generateBookingDates(today = new Date()): BookingDate[] {
   return dates;
 }
 
-export function getTimeSlotsForDate(date: string): MockTimeSlot[] {
+export function getTimeSlotsForDate(date: string, clinicHours: ClinicOpeningHours[]): MockTimeSlot[] {
   const localDate = fromLocalDateString(date);
   const weekday = weekdayNames[localDate.getDay()];
-  const openingHours = clinicOpeningHours[weekday];
+  const openingHours = getOpeningHours(clinicHours, weekday);
 
   if (!openingHours) return [];
 
@@ -173,12 +169,12 @@ export function getTimeSlotsForDate(date: string): MockTimeSlot[] {
   return slots;
 }
 
-export function getDefaultBookingDate(dates: BookingDate[]) {
+export function getDefaultBookingDate(dates: BookingDate[], clinicHours: ClinicOpeningHours[]) {
   return (
     dates.find(
       (date) =>
         date.isOpen &&
-        getTimeSlotsForDate(date.date).some((slot) => slot.available),
+        getTimeSlotsForDate(date.date, clinicHours).some((slot) => slot.available),
     )?.date ?? ""
   );
 }

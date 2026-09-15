@@ -1,0 +1,1 @@
+export { getClinicOpeningHours } from "./clinic";

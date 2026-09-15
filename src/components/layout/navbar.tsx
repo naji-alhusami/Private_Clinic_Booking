@@ -356,7 +356,7 @@ export function Navbar() {
 
   const closeMenu = () => setIsMenuOpen(false);
 
-  if (pathname.startsWith("/dashboard") || pathname === "/staff/login") {
+  if (pathname.startsWith("/dashboard") || pathname === "/login") {
     return null;
   }
 

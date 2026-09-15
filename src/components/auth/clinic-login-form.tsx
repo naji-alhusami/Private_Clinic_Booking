@@ -93,11 +93,11 @@ export function ClinicLoginForm() {
         {isLoading ? "Logining in..." : "Login"}
       </Button>
 
-      <p className="py-8">
+      <div className="py-8">
         {error && (
           <p className="text-center text-lg font-bold text-red-600">{error}</p>
         )}
-      </p>
+      </div>
     </form>
   );
 }
