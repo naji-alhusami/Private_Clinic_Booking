@@ -1,1 +1,0 @@
-export { getClinicOpeningHours } from "./clinic";

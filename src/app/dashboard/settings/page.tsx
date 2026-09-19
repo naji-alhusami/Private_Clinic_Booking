@@ -1,13 +1,15 @@
 ﻿import { DashboardPageHeader } from "@/components/dashboard/page-header";
-import { getClinicOpeningHours } from "@/lib/data/getClinicOpeningHours";
-import { getBlockedDates, getClinicSettings } from "@/lib/data/clinic";
 import { BlockedDatesEditor } from "@/components/dashboard/settings/blocked-dates-editor";
 import { OpeningHoursEditor } from "@/components/dashboard/settings/opening-hours-editor";
 import { RequestSettingsEditor } from "@/components/dashboard/settings/request-settings-editor";
 
-export default async function SettingsPage() {
-  // const [hasBlockedDates, setHasBlockedDates] = useState(false);
+import {
+  getBlockedDates,
+  getClinicOpeningHours,
+  getClinicSettings,
+} from "@/lib/data/clinic";
 
+export default async function SettingsPage() {
   const [openingHours, clinicSettings, blockedDates] = await Promise.allSettled(
     [getClinicOpeningHours(), getClinicSettings(), getBlockedDates()],
   );
@@ -28,69 +30,75 @@ export default async function SettingsPage() {
       <DashboardPageHeader
         eyebrow="Clinic administration"
         title="Settings"
-        description="Review the clinic’s public booking configuration. Controls are visual only."
+        description="Manage the clinic’s booking availability and appointment settings."
       />
-      <div className="mt-8 grid gap-6 xl:grid-cols-2">
+
+      <div className="mt-8 grid gap-6">
+        {/* Request Settings */}
         <section
           className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-          aria-labelledby="opening-hours-heading"
+          aria-labelledby="booking-settings-heading"
         >
-          {openingHours.status === "fulfilled" ? (
-            <OpeningHoursEditor openingHours={openingHours.value} />
+          {clinicSettings.status === "fulfilled" ? (
+            <RequestSettingsEditor settings={clinicSettings.value} />
           ) : (
             <>
               <p className="text-xs font-bold uppercase tracking-wide text-teal-700">
-                Clinic schedule
+                Online booking
               </p>
 
               <h2
-                id="opening-hours-heading"
+                id="booking-settings-heading"
                 className="mt-1 text-xl font-semibold text-slate-950"
               >
-                Opening Hours
+                Request Settings
               </h2>
 
               <LoadError
                 message={
-                  openingHours.reason instanceof Error
-                    ? openingHours.reason.message
-                    : "Could not load opening hours. Please reload."
+                  clinicSettings.reason instanceof Error
+                    ? clinicSettings.reason.message
+                    : "Could not load request settings. Please reload."
                 }
               />
             </>
           )}
         </section>
 
-        <div className="grid gap-6">
+        {/* Availability */}
+        <div className="grid items-start gap-6 xl:grid-cols-2">
+          {/* Opening Hours */}
           <section
             className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
-            aria-labelledby="booking-settings-heading"
+            aria-labelledby="opening-hours-heading"
           >
-            {clinicSettings.status === "fulfilled" ? (
-              <RequestSettingsEditor settings={clinicSettings.value} />
+            {openingHours.status === "fulfilled" ? (
+              <OpeningHoursEditor openingHours={openingHours.value} />
             ) : (
               <>
                 <p className="text-xs font-bold uppercase tracking-wide text-teal-700">
-                  Online booking
+                  Clinic schedule
                 </p>
 
                 <h2
-                  id="booking-settings-heading"
+                  id="opening-hours-heading"
                   className="mt-1 text-xl font-semibold text-slate-950"
                 >
-                  Request Settings
+                  Opening Hours
                 </h2>
 
                 <LoadError
                   message={
-                    clinicSettings.reason instanceof Error
-                      ? clinicSettings.reason.message
-                      : "Could not load request settings. Please reload."
+                    openingHours.reason instanceof Error
+                      ? openingHours.reason.message
+                      : "Could not load opening hours. Please reload."
                   }
                 />
               </>
             )}
           </section>
+
+          {/* Blocked Dates */}
           <section
             className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
             aria-labelledby="blocked-dates-heading"
