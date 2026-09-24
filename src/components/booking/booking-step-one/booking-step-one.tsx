@@ -10,6 +10,9 @@ import { Icon, type IconName } from "@/components/ui/icon";
 import PatientPersonalDetails from "./patient-personal-details";
 import NewPatientDetails from "./patient-type/new-patient-details";
 import ExistingPatientDetails from "./patient-type/existing-patient-details";
+import { BookingStepOneInput } from "@/lib/validators/BookingValidators";
+import { Controller, useFormContext, useFormState } from "react-hook-form";
+import { useState } from "react";
 
 const patientTypes: Array<{
   value: PatientType;
@@ -18,16 +21,17 @@ const patientTypes: Array<{
   icon: IconName;
 }> = [
   {
+    value: "existing",
+    title: "Existing Patient",
+    description:
+      "I'm an existing patient and have previously visited this clinic.",
+    icon: "calendar",
+  },
+  {
     value: "new",
     title: "New Patient",
     description: "This will be my first visit to NeuroCare.",
     icon: "user",
-  },
-  {
-    value: "existing",
-    title: "Existing Patient",
-    description: "I have previously visited this clinic.",
-    icon: "calendar",
   },
 ];
 
@@ -111,15 +115,25 @@ type BookingStepOneProps = {
   bookingData: BookingData;
   updateBookingData: UpdateBookingData;
   onContinue: () => void;
-  canContinue: boolean;
+  // canContinue: boolean;
+  errors?: Partial<Record<keyof BookingData, string>>;
 };
 
 export default function BookingStepOne({
   bookingData,
   updateBookingData,
   onContinue,
-  canContinue,
+  errors = {},
 }: BookingStepOneProps) {
+  const form = useFormContext<BookingStepOneInput>();
+  const [continueAttempted, setContinueAttempted] = useState(false);
+  const { errors: validationErrors } = useFormState({
+    control: form.control,
+  });
+
+  const showValidationNotice =
+    continueAttempted && Object.keys(validationErrors).length > 0;
+
   return (
     <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
       <div className="space-y-10">
@@ -145,6 +159,12 @@ export default function BookingStepOne({
           </div>
         </fieldset>
 
+        <PatientPersonalDetails
+          bookingData={bookingData}
+          updateBookingData={updateBookingData}
+          errors={errors}
+        />
+
         <div className="h-px bg-slate-100" />
 
         {bookingData.patientType === "new" ? (
@@ -159,34 +179,56 @@ export default function BookingStepOne({
           />
         )}
 
-        <PatientPersonalDetails
-          bookingData={bookingData}
-          updateBookingData={updateBookingData}
-        />
-
         <div className="h-px bg-slate-100" />
+        <Controller
+          control={form.control}
+          name="insuranceType"
+          render={({ field, fieldState }) => (
+            <fieldset>
+              <legend
+                className={`text-xl font-semibold tracking-tight sm:text-2xl ${
+                  fieldState.error ? "text-red-600" : "text-slate-950"
+                }`}
+              >
+                Health Insurance <span>*</span>
+              </legend>
 
-        <fieldset>
-          <legend className="text-xl font-semibold tracking-tight text-slate-950 sm:text-2xl">
-            Health Insurance
-          </legend>
-          <p className="mt-2 text-sm leading-6 text-slate-500">
-            Select how your consultation will be covered.
-          </p>
-          <div className="mt-5 grid gap-3">
-            {insuranceTypes.map((option) => (
-              <ChoiceCard
-                key={option.value}
-                checked={bookingData.insuranceType === option.value}
-                onChange={() =>
-                  updateBookingData({ insuranceType: option.value })
-                }
-                name="insurance-type"
-                {...option}
-              />
-            ))}
-          </div>
-        </fieldset>
+              <p className="mt-2 text-sm leading-6 text-slate-500">
+                Select how your consultation will be covered.
+              </p>
+
+              <div className="mt-5 grid gap-3">
+                {insuranceTypes.map((option) => (
+                  <ChoiceCard
+                    key={option.value}
+                    checked={field.value === option.value}
+                    onChange={() => {
+                      form.setValue("insuranceType", option.value, {
+                        shouldValidate: true,
+                        shouldTouch: true,
+                        shouldDirty: true,
+                      });
+
+                      updateBookingData({
+                        insuranceType: option.value,
+                      });
+                    }}
+                    name="insurance-type"
+                    {...option}
+                  />
+                ))}
+              </div>
+
+              <div className="mt-1.5 min-h-4">
+                {fieldState.error && (
+                  <p className="text-xs leading-4 text-red-600">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            </fieldset>
+          )}
+        />
 
         <div className="h-px bg-slate-100" />
 
@@ -204,29 +246,28 @@ export default function BookingStepOne({
           </p>
         </aside>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-100 pt-7 sm:flex-row sm:items-center sm:justify-between">
-          <Link
-            href="/#home"
-            className="inline-flex min-h-11 items-center justify-center rounded-xl px-4 text-sm font-semibold text-slate-600 outline-none transition-colors hover:bg-slate-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
-          >
-            Back to Home
-          </Link>
+        <div className="flex flex-col items-center gap-2 sm:items-end">
           <Button
             type="button"
             size="lg"
-            disabled={!canContinue}
-            onClick={onContinue}
-            className="min-h-12 cursor-pointer rounded-xl bg-teal-700 px-6 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 disabled:cursor-not-allowed sm:min-w-72"
+            onClick={() => {
+              setContinueAttempted(true);
+              onContinue();
+            }}
+            className="min-h-12 cursor-pointer rounded-xl bg-teal-700 px-6 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 sm:min-w-72"
           >
             Continue to Available Appointments
             <Icon name="arrow" data-icon="inline-end" className="size-4" />
           </Button>
+
+          <div className="min-h-4" aria-live="polite">
+            {showValidationNotice && (
+              <p className="text-center text-xs font-medium text-red-600 sm:text-right">
+                Please correct the highlighted fields before continuing.
+              </p>
+            )}
+          </div>
         </div>
-        {!canContinue && (
-          <p className="-mt-7 text-right text-xs leading-5 text-slate-500">
-            Complete all required fields to continue.
-          </p>
-        )}
       </div>
     </div>
   );

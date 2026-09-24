@@ -22,9 +22,8 @@ export type BookingData = {
   street: string;
   postalCode: string;
   city: string;
-  newPatientReason: string;
+  visitReason: string;
   visitDescription: string;
-  existingPatientReason: string;
   appointmentDate: string;
   appointmentTime: string;
 };
@@ -33,7 +32,7 @@ export type UpdateBookingData = (updates: Partial<BookingData>) => void;
 
 export const initialBookingData: BookingData = {
   status: "pending",
-  patientType: "new",
+  patientType: "existing",
   insuranceType: "",
   firstName: "",
   lastName: "",
@@ -43,9 +42,8 @@ export const initialBookingData: BookingData = {
   street: "",
   postalCode: "",
   city: "",
-  newPatientReason: "",
+  visitReason: "",
   visitDescription: "",
-  existingPatientReason: "",
   appointmentDate: "",
   appointmentTime: "",
 };

@@ -4,16 +4,31 @@ import type {
   UpdateBookingData,
 } from "@/components/booking/booking-types";
 import SelectField from "../select-field";
+import { Controller, useFormContext } from "react-hook-form";
+import { BookingStepOneInput } from "@/lib/validators/BookingValidators";
 
 type NewPatientDetailsProps = {
   bookingData: BookingData;
   updateBookingData: UpdateBookingData;
 };
 
+const visitReasonOptions = [
+  "General Neurological Consultation",
+  "New Symptoms or Concerns",
+  "Headache or Migraine",
+  "Dizziness or Balance Problems",
+  "Seizures or Epilepsy",
+  "Numbness, Tingling or Weakness",
+  "Memory or Cognitive Concerns",
+  "Other",
+];
+
 export default function NewPatientDetails({
   bookingData,
   updateBookingData,
 }: NewPatientDetailsProps) {
+  const form = useFormContext<BookingStepOneInput>();
+
   return (
     <section
       aria-labelledby="new-patient-heading"
@@ -37,60 +52,102 @@ export default function NewPatientDetails({
       </div>
 
       <div className="mt-6 space-y-6">
-        <SelectField
-          id="new-patient-reason"
-          label="Main reason for consultation"
-          placeholder="Select the reason for your visit"
-          options={[
-            "New neurological complaint",
-            "Referral from another doctor",
-            "Headache or migraine",
-            "Dizziness or balance problems",
-            "Seizures or suspected epilepsy",
-            "Numbness, tingling or weakness",
-            "Memory or cognitive concerns",
-            "Other neurological concern",
-          ]}
-          value={bookingData.newPatientReason}
-          onChange={(newPatientReason) =>
-            updateBookingData({ newPatientReason })
-          }
-          required
+        {/* Visit Reason */}
+        <Controller
+          control={form.control}
+          name="visitReason"
+          render={({ field, fieldState }) => (
+            <div>
+              <SelectField
+                id="new-patient-reason"
+                label="Main reason for consultation"
+                placeholder="Select the reason for your visit"
+                options={visitReasonOptions}
+                value={field.value}
+                invalid={!!fieldState.error}
+                onChange={(value) => {
+                  form.setValue("visitReason", value, {
+                    shouldValidate: true,
+                    shouldTouch: true,
+                    shouldDirty: true,
+                  });
+
+                  updateBookingData({
+                    visitReason: value,
+                  });
+                }}
+                required
+              />
+
+              <div className="mt-1.5 min-h-4">
+                {fieldState.error && (
+                  <p className="text-xs leading-4 text-red-600">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
         />
 
-        <div>
-          <label
-            htmlFor="visit-description"
-            className="text-sm font-semibold text-slate-900"
-          >
-            Briefly describe the reason for your visit
-          </label>
-          <textarea
-            id="visit-description"
-            name="visit-description"
-            rows={5}
-            required
-            value={bookingData.visitDescription}
-            onChange={(event) =>
-              updateBookingData({ visitDescription: event.target.value })
-            }
-            placeholder="Please provide a short description of your symptoms or reason for consultation."
-            className="mt-2.5 w-full resize-y rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 hover:border-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15"
-          />
-          <p className="mt-2 text-xs leading-5 text-slate-500">
-            A brief overview is sufficient. A detailed medical history is not
-            required at this stage.
-          </p>
-        </div>
+        {/* Visit Description */}
+        <Controller
+          control={form.control}
+          name="visitDescription"
+          render={({ field, fieldState }) => (
+            <div>
+              <label
+                htmlFor="visit-description"
+                className={`text-sm font-semibold ${
+                  fieldState.error ? "text-red-600" : "text-slate-900"
+                }`}
+              >
+                Briefly describe the reason for your visit{" "}
+                <span
+                  className={
+                    fieldState.error ? "text-red-600" : "text-teal-700"
+                  }
+                >
+                  *
+                </span>
+              </label>
 
-        <div className="flex gap-3 rounded-xl border border-teal-100 bg-teal-50/70 p-4 text-sm leading-6 text-teal-950">
-          <Icon name="brain" className="mt-0.5 size-5 shrink-0 text-teal-700" />
-          <p>
-            Diagnostic examinations such as EEG or EMG are arranged by the
-            doctor when medically appropriate and are not booked as appointment
-            types.
-          </p>
-        </div>
+              <textarea
+                {...field}
+                id="visit-description"
+                rows={5}
+                required
+                aria-invalid={!!fieldState.error}
+                onChange={(event) => {
+                  field.onChange(event);
+
+                  updateBookingData({
+                    visitDescription: event.target.value,
+                  });
+                }}
+                placeholder="Please provide a short description of your symptoms or reason for consultation."
+                className={`mt-2.5 w-full resize-y rounded-xl border bg-white px-4 py-3 text-sm leading-6 text-slate-800 outline-none transition-colors placeholder:text-slate-400 ${
+                  fieldState.error
+                    ? "border-red-500 hover:border-red-500 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
+                    : "border-slate-300 hover:border-slate-400 focus:border-teal-600 focus:ring-2 focus:ring-teal-600/15"
+                }`}
+              />
+
+              <div className="mt-1.5 min-h-4">
+                {fieldState.error && (
+                  <p className="text-xs leading-4 text-red-600">
+                    {fieldState.error.message}
+                  </p>
+                )}
+              </div>
+
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                A brief overview is sufficient. A detailed medical history is
+                not required at this stage.
+              </p>
+            </div>
+          )}
+        />
       </div>
     </section>
   );

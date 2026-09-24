@@ -149,7 +149,7 @@ export default function BookingStepThree({
             <dl className="grid gap-5">
               <SummaryItem
                 label="Reason for visit"
-                value={bookingData.newPatientReason}
+                value={bookingData.visitReason}
               />
               <SummaryItem
                 label="Brief description"
@@ -160,7 +160,7 @@ export default function BookingStepThree({
             <dl>
               <SummaryItem
                 label="Follow-up reason"
-                value={bookingData.existingPatientReason}
+                value={bookingData.visitReason}
               />
             </dl>
           )}

@@ -10,6 +10,7 @@ export const metadata: Metadata = {
 
 export default async function BookAppointmentPage() {
   const openingHours = await getClinicOpeningHours();
+  
   return (
     <main className="relative bg-[#f7faf9] px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20">
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
