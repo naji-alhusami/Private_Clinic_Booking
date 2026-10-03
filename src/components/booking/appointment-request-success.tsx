@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { BookingData } from "@/components/booking/booking-types";
-import { formatBookingDate } from "@/components/booking/booking-step-two/mock-availability";
+import { formatBookingDate } from "@/components/booking/booking-step-two/booking-availability";
 import { Icon } from "@/components/ui/icon";
 
 export default function AppointmentRequestSuccess({

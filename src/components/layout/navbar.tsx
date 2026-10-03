@@ -67,7 +67,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
       <nav
         aria-label="Main navigation"
-        className="mx-auto flex h-19 w-full max-w-8xl items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-35"
+        className="mx-auto flex h-19 w-full max-w-clinic items-center justify-between px-4 sm:px-6 lg:h-20 lg:px-10"
       >
         <ClinicBrand />
 
@@ -77,7 +77,7 @@ export function Navbar() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-lg px-4 py-2.5 text-sm font-medium text-slate-600 outline-none transition-colors hover:bg-slate-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
+              className="rounded-lg px-4 py-2.5 text-lg font-medium text-slate-600 outline-none transition-colors hover:bg-slate-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2"
             >
               {item.label}
             </Link>

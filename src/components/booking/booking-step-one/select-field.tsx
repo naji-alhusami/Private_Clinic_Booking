@@ -23,7 +23,7 @@ export default function SelectField({
     <div>
       <label
         htmlFor={id}
-        className={`text-sm font-semibold ${
+        className={`text-md font-semibold ${
           invalid ? "text-red-600" : "text-slate-900"
         }`}
       >

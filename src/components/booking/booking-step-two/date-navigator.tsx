@@ -1,9 +1,11 @@
 import { useState } from "react";
-import type { BookingDate } from "./mock-availability";
+import { isDateBlocked, type BookingDate } from "./booking-availability";
 import { Icon } from "@/components/ui/icon";
+import { BlockedDate } from "@/lib/data/getBlockedDates";
 
 type DateNavigatorProps = {
   dates: BookingDate[];
+  blockedDates: BlockedDate[];
   selectedDate: string;
   visibleCount: 3 | 5;
   className: string;
@@ -24,6 +26,7 @@ function getInitialStartIndex(
 
 export default function DateNavigator({
   dates,
+  blockedDates,
   selectedDate,
   visibleCount,
   className,
@@ -47,6 +50,12 @@ export default function DateNavigator({
     );
   };
 
+  // function isDateBlocked(date: string, blockedDates: BlockedDate[]) {
+  //   return blockedDates.some((blocked) => {
+  //     return date >= blocked.start_date && date <= blocked.end_date;
+  //   });
+  // }
+
   return (
     <div className={`items-stretch gap-2 ${className}`}>
       <button
@@ -54,29 +63,32 @@ export default function DateNavigator({
         aria-label={`Show previous ${visibleCount} dates`}
         disabled={visibleStartIndex === 0}
         onClick={() => moveVisibleRange(-1)}
-        className="grid min-h-24 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 outline-none transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300"
+        className="grid h-28 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 outline-none transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300"
       >
         <Icon name="arrow" className="size-5 rotate-180" />
       </button>
 
       <div
         className="grid min-w-0 flex-1 gap-2"
-        style={{ gridTemplateColumns: `repeat(${visibleCount}, minmax(0, 1fr))` }}
+        style={{
+          gridTemplateColumns: `repeat(${visibleCount}, minmax(0, 1fr))`,
+        }}
       >
         {visibleDates.map((date) => {
           const isSelected = selectedDate === date.date;
 
+          const isBlocked = isDateBlocked(date.date, blockedDates);
           return (
             <button
               key={date.date}
               type="button"
-              disabled={!date.isOpen}
+              disabled={!date.isOpen || isBlocked}
               aria-pressed={isSelected}
               aria-label={`${date.weekday}, ${date.day} ${date.month} ${date.year}${
-                date.isOpen ? "" : ", clinic closed"
+                date.isOpen && !isBlocked ? "" : ", clinic closed"
               }`}
               onClick={() => onSelect(date.date)}
-              className={`flex min-h-24 min-w-0 cursor-pointer flex-col items-center justify-center rounded-xl border px-1.5 py-3 text-center outline-none transition-all focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${
+              className={`flex h-28 min-w-0 cursor-pointer flex-col items-center justify-center rounded-xl border px-1.5 py-3 text-center outline-none transition-all focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed ${
                 isSelected
                   ? "border-teal-700 bg-teal-700 text-white shadow-sm shadow-teal-950/15"
                   : date.isOpen
@@ -108,7 +120,7 @@ export default function DateNavigator({
         aria-label={`Show next ${visibleCount} dates`}
         disabled={visibleStartIndex >= maximumStartIndex}
         onClick={() => moveVisibleRange(1)}
-        className="grid min-h-24 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 outline-none transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300"
+        className="grid h-28 w-11 shrink-0 cursor-pointer place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 outline-none transition-colors hover:border-teal-300 hover:bg-teal-50 hover:text-teal-800 focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-300"
       >
         <Icon name="arrow" className="size-5" />
       </button>

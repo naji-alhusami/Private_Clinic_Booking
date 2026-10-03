@@ -1,4 +1,4 @@
-import type { ClinicOpeningHours } from "@/lib/clinic-settings";
+import type { BlockedDate, ClinicOpeningHours } from "@/lib/clinic-settings";
 import { useState } from "react";
 import type {
   BookingData,
@@ -11,10 +11,11 @@ import {
   generateBookingDates,
   getDefaultBookingDate,
   getTimeSlotsForDate,
-} from "./mock-availability";
+} from "./booking-availability";
 
 type BookingStepTwoProps = {
   openingHours: ClinicOpeningHours[];
+  blockedDates: BlockedDate[];
   bookingData: BookingData;
   updateBookingData: UpdateBookingData;
   onBack: () => void;
@@ -23,18 +24,23 @@ type BookingStepTwoProps = {
 
 export default function BookingStepTwo({
   openingHours,
+  blockedDates,
   bookingData,
   updateBookingData,
   onBack,
   onContinue,
 }: BookingStepTwoProps) {
-  const [bookingDates] = useState(() => generateBookingDates(openingHours));
+  const [bookingDates] = useState(() =>
+    generateBookingDates(openingHours, blockedDates),
+  );
   const selectedDate =
-    bookingData.appointmentDate || getDefaultBookingDate(bookingDates, openingHours);
+    bookingData.appointmentDate ||
+    getDefaultBookingDate(bookingDates, openingHours);
   const selectedDay = bookingDates.find((day) => day.date === selectedDate);
-  const timeSlots = selectedDay ? getTimeSlotsForDate(selectedDay.date, openingHours) : [];
+  const timeSlots = selectedDay
+    ? getTimeSlotsForDate(selectedDay.date, openingHours)
+    : [];
   const canContinue = Boolean(selectedDate && bookingData.appointmentTime);
-
   const selectDate = (date: string) => {
     updateBookingData({ appointmentDate: date, appointmentTime: "" });
   };
@@ -68,6 +74,7 @@ export default function BookingStepTwo({
 
         <DateNavigator
           dates={bookingDates}
+          blockedDates={blockedDates}
           selectedDate={selectedDate}
           visibleCount={3}
           onSelect={selectDate}
@@ -75,6 +82,7 @@ export default function BookingStepTwo({
         />
         <DateNavigator
           dates={bookingDates}
+          blockedDates={blockedDates}
           selectedDate={selectedDate}
           visibleCount={5}
           onSelect={selectDate}
@@ -128,9 +136,9 @@ export default function BookingStepTwo({
                 <button
                   key={slot.time}
                   type="button"
-                  disabled={!slot.available}
+                  // disabled={!slot.available}
                   aria-pressed={isSelected}
-                  aria-label={`${slot.time}${slot.available ? "" : ", booked"}`}
+                  // aria-label={`${slot.time}${slot.available ? "" : ", booked"}`}
                   onClick={() =>
                     updateBookingData({
                       appointmentDate: selectedDate,

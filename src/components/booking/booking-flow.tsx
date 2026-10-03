@@ -1,16 +1,17 @@
 "use client";
 
-import type { ClinicOpeningHours } from "@/lib/clinic-settings";
+import type { BlockedDate, ClinicOpeningHours } from "@/lib/clinic-settings";
 import { useState } from "react";
 import AppointmentRequestSuccess from "@/components/booking/appointment-request-success";
 import BookingStepOne from "@/components/booking/booking-step-one/booking-step-one";
 import BookingStepThree from "@/components/booking/booking-step-three/booking-step-three";
 import BookingStepTwo from "@/components/booking/booking-step-two/booking-step-two";
 import BookingSteps from "@/components/booking/booking-steps";
+import BookingAppointmentSummary from "@/components/booking/booking-appointment-summary";
 import {
   generateBookingDates,
   getDefaultBookingDate,
-} from "@/components/booking/booking-step-two/mock-availability";
+} from "@/components/booking/booking-step-two/booking-availability";
 import {
   initialBookingData,
   type BookingData,
@@ -52,8 +53,10 @@ import {
 
 export default function BookingFlow({
   openingHours,
+  blockedDates,
 }: {
   openingHours: ClinicOpeningHours[];
+  blockedDates: BlockedDate[];
 }) {
   const [step, setStep] = useState<BookingStep>(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -92,7 +95,6 @@ export default function BookingFlow({
       "visitDescription",
     ]);
 
-    
     // Temporarily validate the remaining Step 1 fields
     const result = bookingStepOneSchema.safeParse(bookingData);
 
@@ -118,7 +120,7 @@ export default function BookingFlow({
     }
 
     // Existing booking-date logic
-    const bookingDates = generateBookingDates(openingHours);
+    const bookingDates = generateBookingDates(openingHours, blockedDates);
 
     const dateIsWithinBookingWindow = bookingDates.some(
       (date) => date.date === bookingData.appointmentDate && date.isOpen,
@@ -139,37 +141,42 @@ export default function BookingFlow({
   }
 
   return (
-    <>
+    <div className="contents xl:mt-10 xl:grid xl:grid-cols-[11rem_minmax(0,1fr)_12rem] xl:gap-6">
       <BookingSteps currentStep={step} />
 
-      {step === 1 && (
-        <FormProvider {...form}>
-          <BookingStepOne
+      <div className="contents xl:block xl:min-w-0 xl:[&>div]:mt-0">
+        {step === 1 && (
+          <FormProvider {...form}>
+            <BookingStepOne
+              bookingData={bookingData}
+              updateBookingData={updateBookingData}
+              errors={errors}
+              onContinue={continueToStepTwo}
+            />
+          </FormProvider>
+        )}
+
+        {step === 2 && (
+          <BookingStepTwo
+            openingHours={openingHours}
+            blockedDates={blockedDates}
             bookingData={bookingData}
             updateBookingData={updateBookingData}
-            errors={errors}
-            onContinue={continueToStepTwo}
+            onBack={() => setStep(1)}
+            onContinue={() => setStep(3)}
           />
-        </FormProvider>
-      )}
+        )}
 
-      {step === 2 && (
-        <BookingStepTwo
-          openingHours={openingHours}
-          bookingData={bookingData}
-          updateBookingData={updateBookingData}
-          onBack={() => setStep(1)}
-          onContinue={() => setStep(3)}
-        />
-      )}
+        {step === 3 && (
+          <BookingStepThree
+            bookingData={bookingData}
+            onBack={() => setStep(2)}
+            onSubmit={() => setIsSubmitted(true)}
+          />
+        )}
+      </div>
 
-      {step === 3 && (
-        <BookingStepThree
-          bookingData={bookingData}
-          onBack={() => setStep(2)}
-          onSubmit={() => setIsSubmitted(true)}
-        />
-      )}
-    </>
+      <BookingAppointmentSummary bookingData={bookingData} currentStep={step} />
+    </div>
   );
 }

@@ -123,12 +123,12 @@ export default function PatientPersonalDetails({
           >
             Personal Details
           </h2>
-          <p className="mt-1 text-sm leading-6 text-slate-500">
+          <p className="mt-1 text-sm  leading-6 text-slate-500">
             Fields marked with an asterisk are required.
           </p>
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-6">
+      <div className="mt-6 grid grid-cols-1 gap-x-15 gap-y-5 sm:grid-cols-2 md:grid-cols-6">
         {fields.map((field) => (
           <Controller
             key={field.key}
@@ -138,7 +138,7 @@ export default function PatientPersonalDetails({
               <div className={field.className}>
                 <label
                   htmlFor={field.key}
-                  className={`text-sm font-semibold ${
+                  className={`text-md font-semibold ${
                     fieldState.error ? "text-red-600" : "text-slate-900"
                   }`}
                 >

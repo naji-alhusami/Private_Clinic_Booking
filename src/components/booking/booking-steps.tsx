@@ -15,9 +15,12 @@ export default function BookingSteps({
   return (
     <nav
       aria-label="Booking progress"
-      className="sticky top-19 z-40 mx-auto mt-10 max-w-3xl rounded-2xl border border-slate-200/80 bg-white/90 px-3 py-3 shadow-sm backdrop-blur-xl lg:top-20 sm:px-5"
+      className="sticky top-19 z-40 mx-auto mt-10 max-w-3xl rounded-2xl border border-slate-200/80 bg-white/90 px-3 py-3 shadow-sm backdrop-blur-xl lg:top-20 sm:px-5 xl:top-28 xl:mx-0 xl:mt-0 xl:w-full xl:min-w-0 xl:self-start xl:px-4 xl:py-5"
     >
-      <ol className="grid grid-cols-3">
+      <p className="mb-6 hidden text-xs font-bold uppercase tracking-[0.15em] text-teal-700 xl:block">
+        Your booking
+      </p>
+      <ol className="grid grid-cols-3 xl:flex xl:flex-col xl:gap-8">
         {progressSteps.map((step, index) => {
           const isActive = currentStep === step.number;
           const isComplete = currentStep > step.number;
@@ -26,18 +29,19 @@ export default function BookingSteps({
             <li
               key={step.number}
               aria-current={isActive ? "step" : undefined}
-              className="relative flex flex-col items-center text-center"
+              className="relative flex flex-col items-center text-center xl:min-h-10 xl:flex-row xl:items-start xl:gap-3 xl:text-left"
             >
               {index > 0 && (
                 <span
                   aria-hidden="true"
-                  className={`absolute right-1/2 top-4 h-px w-full ${
+                  className={`absolute right-1/2 top-4 h-px w-full xl:-top-10 xl:left-4 xl:right-auto xl:h-10 xl:w-px ${
                     currentStep >= step.number ? "bg-teal-300" : "bg-slate-200"
                   }`}
                 />
               )}
               <span
-                className={`relative z-10 grid size-8 place-items-center rounded-full border text-xs font-bold transition-colors ${
+                aria-hidden="true"
+                className={`relative z-10 grid size-8 shrink-0 place-items-center rounded-full border text-xs font-bold transition-colors ${
                   isActive
                     ? "border-teal-700 bg-teal-700 text-white shadow-sm shadow-teal-900/15"
                     : isComplete
@@ -52,7 +56,7 @@ export default function BookingSteps({
                 )}
               </span>
               <span
-                className={`mt-2 text-[0.65rem] font-semibold leading-4 sm:text-sm ${
+                className={`mt-2 text-[0.65rem] font-semibold leading-4 sm:text-sm xl:mt-0 xl:leading-5 ${
                   isActive
                     ? "text-teal-800"
                     : isComplete
@@ -60,8 +64,12 @@ export default function BookingSteps({
                       : "text-slate-500"
                 }`}
               >
-                <span className="hidden sm:inline">Step {step.number} — </span>
+                <span className="hidden sm:inline xl:block xl:text-xs xl:font-medium xl:leading-5">
+                  Step {step.number}
+                  <span className="xl:hidden"> — </span>
+                </span>
                 {step.label}
+                {isComplete && <span className="sr-only">, completed</span>}
               </span>
             </li>
           );

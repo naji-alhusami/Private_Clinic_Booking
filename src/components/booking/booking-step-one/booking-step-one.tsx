@@ -197,7 +197,7 @@ export default function BookingStepOne({
                 Select how your consultation will be covered.
               </p>
 
-              <div className="mt-5 grid gap-3">
+              <div className="mt-5 grid gap-4 xl:flex xl:gap-8">
                 {insuranceTypes.map((option) => (
                   <ChoiceCard
                     key={option.value}

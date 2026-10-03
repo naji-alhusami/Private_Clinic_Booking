@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { BookingData } from "@/components/booking/booking-types";
-import { formatBookingDate } from "@/components/booking/booking-step-two/mock-availability";
+import { formatBookingDate } from "@/components/booking/booking-step-two/booking-availability";
 import { Button } from "@/components/ui/button";
 import { Icon, type IconName } from "@/components/ui/icon";
 
@@ -47,7 +47,7 @@ function SummaryItem({ label, value }: { label: string; value: string }) {
       <dt className="text-xs font-medium uppercase tracking-[0.08em] text-slate-500">
         {label}
       </dt>
-      <dd className="mt-1.5 wrap-break-word text-sm font-medium leading-6 text-slate-900">
+      <dd className="mt-1.5 min-w-0 text-sm font-medium leading-6 text-slate-900 wrap-anywhere">
         {value}
       </dd>
     </div>
@@ -67,7 +67,7 @@ export default function BookingStepThree({
 }: BookingStepThreeProps) {
   const formattedDate = formatBookingDate(bookingData.appointmentDate);
   const fullAddress = `${bookingData.street}, ${bookingData.postalCode} ${bookingData.city}`;
-
+  console.log("Booking Data:", bookingData);
   return (
     <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
       <div className="flex items-start gap-3">
@@ -88,7 +88,7 @@ export default function BookingStepThree({
         </div>
       </div>
 
-      <div className="mt-8 grid gap-5">
+      <div className="mt-8 grid min-w-0 gap-5">
         <SummarySection
           eyebrow="Patient information"
           title={`${bookingData.firstName} ${bookingData.lastName}`}
@@ -97,7 +97,10 @@ export default function BookingStepThree({
           <dl className="grid gap-5 sm:grid-cols-2">
             <SummaryItem label="First name" value={bookingData.firstName} />
             <SummaryItem label="Last name" value={bookingData.lastName} />
-            <SummaryItem label="Date of birth" value={bookingData.dateOfBirth} />
+            <SummaryItem
+              label="Date of birth"
+              value={bookingData.dateOfBirth}
+            />
             <SummaryItem label="Email" value={bookingData.email} />
             <SummaryItem label="Phone" value={bookingData.phone} />
             <SummaryItem label="Full address" value={fullAddress} />
@@ -148,19 +151,29 @@ export default function BookingStepThree({
           {bookingData.patientType === "new" ? (
             <dl className="grid gap-5">
               <SummaryItem
-                label="Reason for visit"
+                label={
+                  bookingData.patientType === "new"
+                    ? "Reason for visit"
+                    : "Follow-up reason"
+                }
                 value={bookingData.visitReason}
               />
+
               <SummaryItem
                 label="Brief description"
                 value={bookingData.visitDescription}
               />
             </dl>
           ) : (
-            <dl>
+            <dl className="grid gap-5">
               <SummaryItem
                 label="Follow-up reason"
                 value={bookingData.visitReason}
+              />
+
+              <SummaryItem
+                label="Brief description"
+                value={bookingData.visitDescription}
               />
             </dl>
           )}
@@ -184,7 +197,10 @@ export default function BookingStepThree({
             <SummaryItem label="Doctor" value="Dr. Ahmad Hussami" />
             <SummaryItem label="Clinic" value="NeuroCare Private Clinic" />
             <SummaryItem label="Selected date" value={formattedDate} />
-            <SummaryItem label="Selected time" value={bookingData.appointmentTime} />
+            <SummaryItem
+              label="Selected time"
+              value={bookingData.appointmentTime}
+            />
           </dl>
         </section>
       </div>
@@ -195,8 +211,8 @@ export default function BookingStepThree({
       >
         <Icon name="mail" className="mt-0.5 size-5 shrink-0 text-teal-700" />
         <p>
-          Submitting creates a pending request in this demo flow. It does not
-          confirm an appointment, store data, or send a notification.
+          Your appointment request requires approval from the clinic management.
+          You will receive an email once your appointment has been confirmed.
         </p>
       </aside>
 

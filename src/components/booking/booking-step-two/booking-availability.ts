@@ -1,4 +1,5 @@
 import type { ClinicOpeningHours } from "@/lib/clinic-settings";
+import type { BlockedDate } from "@/lib/data/getBlockedDates";
 
 export type WeekdayName =
   | "Monday"
@@ -24,27 +25,28 @@ export type BookingDate = {
   isOpen: boolean;
 };
 
-export type MockTimeSlot = {
+export type TimeSlot = {
   time: string;
-  available: boolean;
 };
 
-function getOpeningHours(rows: ClinicOpeningHours[], weekday: WeekdayName): OpeningHours | null {
+function getOpeningHours(
+  rows: ClinicOpeningHours[],
+  weekday: WeekdayName,
+): OpeningHours | null {
   const row = rows.find((item) => item.day_of_week === weekday);
   return row?.is_open && row.opening_time && row.closing_time
-    ? { openingTime: row.opening_time.slice(0, 5), closingTime: row.closing_time.slice(0, 5) }
+    ? {
+        openingTime: row.opening_time.slice(0, 5),
+        closingTime: row.closing_time.slice(0, 5),
+      }
     : null;
 }
 
-const mockBookedTimes: Record<WeekdayName, string[]> = {
-  Monday: ["09:30", "13:00", "16:00"],
-  Tuesday: ["09:30", "11:30", "14:00"],
-  Wednesday: ["08:30", "10:30", "13:30"],
-  Thursday: ["09:00", "12:00", "15:30"],
-  Friday: ["10:00", "11:30"],
-  Saturday: [],
-  Sunday: [],
-};
+export function isDateBlocked(date: string, blockedDates: BlockedDate[] = []) {
+  return blockedDates.some(
+    (blocked) => date >= blocked.start_date && date <= blocked.end_date,
+  );
+}
 
 const weekdayNames: WeekdayName[] = [
   "Sunday",
@@ -110,7 +112,11 @@ function formatHours(hours: OpeningHours | null) {
   return hours ? `${hours.openingTime} – ${hours.closingTime}` : "Closed";
 }
 
-export function generateBookingDates(clinicHours: ClinicOpeningHours[], today = new Date()): BookingDate[] {
+export function generateBookingDates(
+  clinicHours: ClinicOpeningHours[],
+  blockedDates: BlockedDate[] = [],
+  today = new Date(),
+): BookingDate[] {
   const minDate = startOfLocalDay(today);
   const maxDate = addCalendarMonths(minDate, 2);
   const dates: BookingDate[] = [];
@@ -130,14 +136,19 @@ export function generateBookingDates(clinicHours: ClinicOpeningHours[], today = 
       month: monthNames[currentDate.getMonth()],
       year: currentDate.getFullYear().toString(),
       hours: formatHours(openingHours),
-      isOpen: openingHours !== null,
+      isOpen:
+        openingHours !== null &&
+        !isDateBlocked(toLocalDateString(currentDate), blockedDates),
     });
   }
 
   return dates;
 }
 
-export function getTimeSlotsForDate(date: string, clinicHours: ClinicOpeningHours[]): MockTimeSlot[] {
+export function getTimeSlotsForDate(
+  date: string,
+  clinicHours: ClinicOpeningHours[],
+): TimeSlot[] {
   const localDate = fromLocalDateString(date);
   const weekday = weekdayNames[localDate.getDay()];
   const openingHours = getOpeningHours(clinicHours, weekday);
@@ -152,29 +163,32 @@ export function getTimeSlotsForDate(date: string, clinicHours: ClinicOpeningHour
     .map(Number);
   const startMinutes = openingHour * 60 + openingMinute;
   const closingMinutes = closingHour * 60 + closingMinute;
-  const bookedTimes = mockBookedTimes[weekday];
-  const slots: MockTimeSlot[] = [];
+  const slots: TimeSlot[] = [];
 
   for (
     let minutes = startMinutes;
     minutes + 30 <= closingMinutes;
     minutes += 30
   ) {
-    const hour = Math.floor(minutes / 60).toString().padStart(2, "0");
+    const hour = Math.floor(minutes / 60)
+      .toString()
+      .padStart(2, "0");
     const minute = (minutes % 60).toString().padStart(2, "0");
     const time = `${hour}:${minute}`;
-    slots.push({ time, available: !bookedTimes.includes(time) });
+    slots.push({ time });
   }
 
   return slots;
 }
 
-export function getDefaultBookingDate(dates: BookingDate[], clinicHours: ClinicOpeningHours[]) {
+export function getDefaultBookingDate(
+  dates: BookingDate[],
+  clinicHours: ClinicOpeningHours[],
+) {
   return (
     dates.find(
       (date) =>
-        date.isOpen &&
-        getTimeSlotsForDate(date.date, clinicHours).some((slot) => slot.available),
+        date.isOpen && getTimeSlotsForDate(date.date, clinicHours).length > 0,
     )?.date ?? ""
   );
 }
@@ -184,5 +198,8 @@ export function formatBookingDate(date: string) {
   return `${weekdayNames[localDate.getDay()]}, ${localDate
     .getDate()
     .toString()
-    .padStart(2, "0")} ${monthNames[localDate.getMonth()]} ${localDate.getFullYear()}`;
+    .padStart(
+      2,
+      "0",
+    )} ${monthNames[localDate.getMonth()]} ${localDate.getFullYear()}`;
 }

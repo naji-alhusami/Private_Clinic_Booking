@@ -47,16 +47,6 @@ export default function ExistingPatientDetails({
         </div>
       </div>
       <div className="mt-6 space-y-6">
-        {/* Visit Reason */}
-        {/* <SelectField
-          id="follow-up-reason"
-          label="What would you like to discuss?"
-          placeholder="Select a follow-up reason"
-          options={visitReasonOptions}
-          value={bookingData.visitReason}
-          onChange={(visitReason) => updateBookingData({ visitReason })}
-          required
-        /> */}
         <Controller
           control={form.control}
           name="visitReason"
@@ -102,7 +92,7 @@ export default function ExistingPatientDetails({
             <div>
               <label
                 htmlFor="visit-description"
-                className={`text-sm font-semibold ${
+                className={`text-md font-semibold ${
                   fieldState.error ? "text-red-600" : "text-slate-900"
                 }`}
               >
