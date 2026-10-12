@@ -58,16 +58,18 @@ type BookingStepThreeProps = {
   bookingData: BookingData;
   onBack: () => void;
   onSubmit: () => void;
+  isSubmitting: boolean;
 };
 
 export default function BookingStepThree({
   bookingData,
   onBack,
   onSubmit,
+  isSubmitting,
 }: BookingStepThreeProps) {
   const formattedDate = formatBookingDate(bookingData.appointmentDate);
   const fullAddress = `${bookingData.street}, ${bookingData.postalCode} ${bookingData.city}`;
-  console.log("Booking Data:", bookingData);
+  // console.log("Booking Data:", bookingData);
   return (
     <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
       <div className="flex items-start gap-3">
@@ -222,6 +224,7 @@ export default function BookingStepThree({
           variant="outline"
           size="lg"
           onClick={onBack}
+          disabled={isSubmitting}
           className="min-h-12 cursor-pointer rounded-xl border-slate-300 px-6 text-slate-700 hover:bg-slate-50"
         >
           Back
@@ -230,10 +233,14 @@ export default function BookingStepThree({
           type="button"
           size="lg"
           onClick={onSubmit}
+          disabled={isSubmitting}
+          aria-busy={isSubmitting}
           className="min-h-12 cursor-pointer rounded-xl bg-teal-700 px-6 font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 sm:min-w-52"
         >
-          Submit Appointment Request
-          <Icon name="arrow" data-icon="inline-end" className="size-4" />
+          {isSubmitting ? "Submitting..." : "Submit Appointment Request"}
+          {!isSubmitting && (
+            <Icon name="arrow" data-icon="inline-end" className="size-4" />
+          )}
         </Button>
       </div>
     </div>

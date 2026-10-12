@@ -1,5 +1,5 @@
 import type { BlockedDate, ClinicOpeningHours } from "@/lib/clinic-settings";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type {
   BookingData,
   UpdateBookingData,
@@ -33,9 +33,44 @@ export default function BookingStepTwo({
   const [bookingDates] = useState(() =>
     generateBookingDates(openingHours, blockedDates),
   );
+
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
+  const [isLoadingAvailability, setIsLoadingAvailability] = useState(false);
+
   const selectedDate =
     bookingData.appointmentDate ||
     getDefaultBookingDate(bookingDates, openingHours);
+
+  useEffect(() => {
+    if (!selectedDate) {
+      setBookedTimes([]);
+      return;
+    }
+
+    async function fetchBookedTimes() {
+      setIsLoadingAvailability(true);
+      setBookedTimes([]);
+
+      try {
+        const response = await fetch(
+          `/api/appointments/availability?date=${selectedDate}`,
+        );
+
+        const result = await response.json();
+
+        console.log("Availability:", result);
+
+        if (result.success) {
+          setBookedTimes(result.bookedTimes);
+        }
+      } finally {
+        setIsLoadingAvailability(false);
+      }
+    }
+
+    fetchBookedTimes();
+  }, [selectedDate]);
+
   const selectedDay = bookingDates.find((day) => day.date === selectedDate);
   const timeSlots = selectedDay
     ? getTimeSlotsForDate(selectedDay.date, openingHours)
@@ -131,12 +166,13 @@ export default function BookingStepTwo({
           <div className="mt-5 grid grid-cols-3 gap-2.5 sm:grid-cols-4 lg:grid-cols-6">
             {timeSlots.map((slot) => {
               const isSelected = bookingData.appointmentTime === slot.time;
+              const isBooked = bookedTimes.includes(slot.time);
 
               return (
-                <button
+                <Button
                   key={slot.time}
                   type="button"
-                  // disabled={!slot.available}
+                  disabled={isLoadingAvailability || isBooked}
                   aria-pressed={isSelected}
                   // aria-label={`${slot.time}${slot.available ? "" : ", booked"}`}
                   onClick={() =>
@@ -152,7 +188,7 @@ export default function BookingStepTwo({
                   }`}
                 >
                   {slot.time}
-                </button>
+                </Button>
               );
             })}
           </div>

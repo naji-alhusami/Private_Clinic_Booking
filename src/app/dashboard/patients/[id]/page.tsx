@@ -30,7 +30,6 @@ export default async function PatientDetailPage({
     patient.appointments,
     clock,
   );
-  console.log("past:", past);
   const records = [...patient.medical_records].sort((a, b) =>
     b.record_date.localeCompare(a.record_date),
   );

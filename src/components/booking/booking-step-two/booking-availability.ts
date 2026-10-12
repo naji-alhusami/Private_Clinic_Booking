@@ -118,7 +118,9 @@ export function generateBookingDates(
   today = new Date(),
 ): BookingDate[] {
   const minDate = startOfLocalDay(today);
-  const maxDate = addCalendarMonths(minDate, 2);
+  minDate.setDate(minDate.getDate() + 1);
+
+  const maxDate = addCalendarMonths(startOfLocalDay(today), 2);
   const dates: BookingDate[] = [];
 
   for (

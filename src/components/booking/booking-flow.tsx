@@ -1,7 +1,8 @@
 "use client";
 
 import type { BlockedDate, ClinicOpeningHours } from "@/lib/clinic-settings";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import AppointmentRequestError from "@/components/booking/appointment-request-error";
 import AppointmentRequestSuccess from "@/components/booking/appointment-request-success";
 import BookingStepOne from "@/components/booking/booking-step-one/booking-step-one";
 import BookingStepThree from "@/components/booking/booking-step-three/booking-step-three";
@@ -25,32 +26,6 @@ import {
   type BookingStepOneData,
 } from "@/lib/validators/BookingValidators";
 
-// function hasText(value: string) {
-//   return value.trim().length > 0;
-// }
-
-// function isStepOneComplete(bookingData: BookingData) {
-//   const personalDetailsComplete = [
-//     bookingData.insuranceType,
-//     bookingData.firstName,
-//     bookingData.lastName,
-//     bookingData.dateOfBirth,
-//     bookingData.email,
-//     bookingData.phone,
-//     bookingData.street,
-//     bookingData.postalCode,
-//     bookingData.city,
-//   ].every(hasText);
-
-//   const visitDetailsComplete =
-//     bookingData.patientType === "new"
-//       ? hasText(bookingData.newPatientReason) &&
-//         hasText(bookingData.visitDescription)
-//       : hasText(bookingData.existingPatientReason);
-
-//   return personalDetailsComplete && visitDetailsComplete;
-// }
-
 export default function BookingFlow({
   openingHours,
   blockedDates,
@@ -60,6 +35,10 @@ export default function BookingFlow({
 }) {
   const [step, setStep] = useState<BookingStep>(1);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isNewPatient, setIsNewPatient] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const submissionInFlight = useRef(false);
   const [bookingData, setBookingData] =
     useState<BookingData>(initialBookingData);
   const [errors, setErrors] = useState<
@@ -136,8 +115,67 @@ export default function BookingFlow({
     setStep(2);
   };
 
+  const submitAppointment = async () => {
+    if (submissionInFlight.current || isSubmitted) return;
+
+    submissionInFlight.current = true;
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(bookingData),
+      });
+
+      // if the appointment has beer reserved by other patient
+      if (response.status === 409) {
+        setSubmitError(
+          "This appointment time was just booked by another patient. Please choose another time.",
+        );
+        return;
+      }
+
+      const result = await response.json();
+
+      // any other error
+      if (!response.ok || result?.success !== true) {
+        throw new Error("Appointment request failed");
+      }
+
+      setIsNewPatient(result.isNewPatient === true);
+      setIsSubmitted(true);
+    } catch {
+      setSubmitError("We couldn't submit your appointment request.");
+    } finally {
+      submissionInFlight.current = false;
+      setIsSubmitting(false);
+    }
+  };
+
   if (isSubmitted) {
-    return <AppointmentRequestSuccess bookingData={bookingData} />;
+    return (
+      <AppointmentRequestSuccess
+        isNewPatient={isNewPatient}
+        bookingData={bookingData}
+      />
+    );
+  }
+
+  if (submitError) {
+    return (
+      <AppointmentRequestError
+        message={submitError}
+        onRetry={submitAppointment}
+        onBack={() => {
+          setSubmitError(null);
+          setStep(3);
+        }}
+      />
+    );
   }
 
   return (
@@ -171,7 +209,8 @@ export default function BookingFlow({
           <BookingStepThree
             bookingData={bookingData}
             onBack={() => setStep(2)}
-            onSubmit={() => setIsSubmitted(true)}
+            onSubmit={submitAppointment}
+            isSubmitting={isSubmitting}
           />
         )}
       </div>

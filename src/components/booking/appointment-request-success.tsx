@@ -5,8 +5,10 @@ import { Icon } from "@/components/ui/icon";
 
 export default function AppointmentRequestSuccess({
   bookingData,
+  isNewPatient,
 }: {
   bookingData: BookingData;
+  isNewPatient: boolean;
 }) {
   const formattedDate = formatBookingDate(bookingData.appointmentDate);
 
@@ -24,21 +26,26 @@ export default function AppointmentRequestSuccess({
         Request status: Pending review
       </p>
       <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] text-slate-950 sm:text-4xl">
-        Appointment Request Received
+        {isNewPatient ? "Welcome to NeuroCare" : "Appointment Request Submitted"}
       </h2>
       <p className="mx-auto mt-4 max-w-xl text-base leading-7 text-slate-600">
-        Thank you. Your appointment request has been submitted successfully.
+        Your appointment request has been successfully submitted.
       </p>
+      {isNewPatient && (
+        <p className="mx-auto mt-3 max-w-xl text-base leading-7 text-slate-600">
+          As this is your first appointment with NeuroCare, welcome to our clinic.
+        </p>
+      )}
 
       <div className="mx-auto mt-8 max-w-xl rounded-2xl border border-amber-200/80 bg-amber-50/70 p-5 text-left">
         <div className="flex gap-3">
           <Icon name="clock" className="mt-0.5 size-5 shrink-0 text-amber-700" />
           <p className="text-sm leading-6 text-slate-700">
             <strong className="font-semibold text-slate-950">
-              Your appointment is not confirmed yet.
+              Your appointment is not final until it has been approved by the
+              clinic management.
             </strong>{" "}
-            Our clinic team will review your request and send you a confirmation
-            by email or SMS.
+            Please wait for an email from the clinic confirming your appointment.
           </p>
         </div>
       </div>
@@ -87,9 +94,6 @@ export default function AppointmentRequestSuccess({
 
       <p className="mt-7 text-sm font-semibold text-slate-800">
         Please wait for confirmation before visiting the clinic.
-      </p>
-      <p className="mt-2 text-xs leading-5 text-slate-500">
-        This demo does not send real email or SMS notifications.
       </p>
 
       <Link
