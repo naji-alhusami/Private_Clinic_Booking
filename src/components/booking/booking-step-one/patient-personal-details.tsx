@@ -99,7 +99,7 @@ const fields: PersonalField[] = [
 ];
 
 export default function PatientPersonalDetails({
-  bookingData,
+  // bookingData,
   updateBookingData,
 }: PatientPersonalDetailsProps) {
   const form = useFormContext<BookingStepOneInput>();

@@ -20,7 +20,7 @@ const visitReasonOptions = [
 ];
 
 export default function ExistingPatientDetails({
-  bookingData,
+  // bookingData,
   updateBookingData,
 }: ExistingPatientDetailsProps) {
   const form = useFormContext<BookingStepOneInput>();

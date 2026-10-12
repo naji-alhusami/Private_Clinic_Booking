@@ -26,10 +26,12 @@ export default async function PatientDetailPage({
   const patient = await getPatientById(id);
   const clock = clinicClock();
 
-  const { lastVisit, nextAppointment, past, upcoming } = appointmentTimeline(
-    patient.appointments,
-    clock,
-  );
+  const {
+    lastVisit,
+    nextAppointment,
+    past,
+    // upcoming
+  } = appointmentTimeline(patient.appointments, clock);
   const records = [...patient.medical_records].sort((a, b) =>
     b.record_date.localeCompare(a.record_date),
   );

@@ -9,21 +9,21 @@ import {
   getClinicSettings,
 } from "@/lib/data/clinic";
 
+function LoadError({ message }: { message: string }) {
+  return (
+    <p
+      role="alert"
+      className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-700"
+    >
+      {message}
+    </p>
+  );
+}
+
 export default async function SettingsPage() {
   const [openingHours, clinicSettings, blockedDates] = await Promise.allSettled(
     [getClinicOpeningHours(), getClinicSettings(), getBlockedDates()],
   );
-
-  function LoadError({ message }: { message: string }) {
-    return (
-      <p
-        role="alert"
-        className="mt-6 rounded-xl bg-red-50 p-4 text-sm text-red-700"
-      >
-        {message}
-      </p>
-    );
-  }
 
   return (
     <>

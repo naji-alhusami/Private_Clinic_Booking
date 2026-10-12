@@ -42,11 +42,6 @@ export default function BookingStepTwo({
     getDefaultBookingDate(bookingDates, openingHours);
 
   useEffect(() => {
-    if (!selectedDate) {
-      setBookedTimes([]);
-      return;
-    }
-
     async function fetchBookedTimes() {
       setIsLoadingAvailability(true);
       setBookedTimes([]);

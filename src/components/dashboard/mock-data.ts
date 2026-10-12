@@ -1,4 +1,4 @@
-import { Patient } from "@/lib/data/getPatients";
+// import { Patient } from "@/lib/data/getPatients";
 
 export type AppointmentStatus =
   | "Pending"
