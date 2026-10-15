@@ -22,9 +22,23 @@ export function RequestSettingsEditor({
 
   function updateValues(changes: Partial<ClinicSettings>) {
     clearResult();
-    setValues((current) => ({ ...current, ...changes }));
-  }
 
+    setValues((current) => {
+      const next = { ...current, ...changes };
+
+      // Enabling new patients also enables online booking
+      if (changes.accept_new_patients === true) {
+        next.accept_online_bookings = true;
+      }
+
+      // Disabling online booking also disables new patients
+      if (changes.accept_online_bookings === false) {
+        next.accept_new_patients = false;
+      }
+
+      return next;
+    });
+  }
   return (
     <form
       onSubmit={(event) => {
@@ -40,28 +54,68 @@ export function RequestSettingsEditor({
         });
       }}
     >
+      {/* Request Settings Header */}
+      <div>
+        <p className="text-sm font-bold uppercase tracking-wide text-teal-700">
+          Online booking
+        </p>
+
+        <h2
+          id="booking-settings-heading"
+          className="mt-1 text-xl font-semibold text-slate-950"
+        >
+          Request Settings
+        </h2>
+      </div>
       <fieldset disabled={pending} aria-busy={pending} className="min-w-0">
         <legend className="sr-only">Online request settings</legend>
-        <div className="mt-6 flex items-center justify-between gap-5 rounded-xl bg-slate-50 p-4">
-          <div>
-            <label
-              htmlFor="accept-online-bookings"
-              className="text-sm font-semibold text-slate-900"
-            >
-              Accept online appointment requests
-            </label>
-            <p className="mt-1 text-xs text-slate-500">
-              Allow patients to submit new requests
-            </p>
+        <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+          {/* Accept Online Bookings */}
+          <div className="flex items-center justify-between gap-5 rounded-xl bg-slate-50 p-4">
+            <div className="min-w-0">
+              <label
+                htmlFor="accept-online-bookings"
+                className="text-sm font-semibold text-slate-900"
+              >
+                Accept online appointment requests
+              </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Allow patients to submit new requests
+              </p>
+            </div>
+            <SettingsSwitch
+              id="accept-online-bookings"
+              checked={values.accept_online_bookings}
+              label="Accept online appointment requests"
+              onChange={(accept_online_bookings) =>
+                updateValues({ accept_online_bookings })
+              }
+            />
           </div>
-          <SettingsSwitch
-            id="accept-online-bookings"
-            checked={values.accept_online_bookings}
-            label="Accept online appointment requests"
-            onChange={(accept_online_bookings) =>
-              updateValues({ accept_online_bookings })
-            }
-          />
+
+          {/* Accept New Patients */}
+          <div className="flex items-center justify-between gap-5 rounded-xl bg-slate-50 p-4">
+            <div className="min-w-0">
+              <label
+                htmlFor="accept-new-patients"
+                className="text-sm font-semibold text-slate-900"
+              >
+                Accept New Patients
+              </label>
+              <p className="mt-1 text-xs text-slate-500">
+                Allow new patients to request appointments online. Existing
+                patients can still book when this is disabled.
+              </p>
+            </div>
+            <SettingsSwitch
+              id="accept-new-patients"
+              checked={values.accept_new_patients}
+              label="Accept new patients"
+              onChange={(accept_new_patients) =>
+                updateValues({ accept_new_patients })
+              }
+            />
+          </div>
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2">
           <div className="rounded-xl border border-slate-200 p-4">

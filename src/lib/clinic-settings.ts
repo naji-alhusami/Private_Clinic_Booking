@@ -15,6 +15,7 @@ export type ClinicOpeningHours = {
 export type ClinicSettings = {
   id: string;
   accept_online_bookings: boolean;
+  accept_new_patients: boolean;
   booking_window_months: number;
   appointment_duration_minutes: number;
 };

@@ -112,6 +112,7 @@ export async function updateClinicSettings(
       !settings ||
       !isUuid(settings.id) ||
       typeof settings.accept_online_bookings !== "boolean" ||
+      typeof settings.accept_new_patients !== "boolean" ||
       ![1, 2, 3].includes(settings.booking_window_months) ||
       ![15, 30, 45, 60].includes(settings.appointment_duration_minutes)
     ) {
@@ -130,10 +131,11 @@ export async function updateClinicSettings(
       .from("clinic_settings")
       .update({
         accept_online_bookings: settings.accept_online_bookings,
+        accept_new_patients: settings.accept_new_patients,
         booking_window_months: settings.booking_window_months,
         appointment_duration_minutes: settings.appointment_duration_minutes,
         updated_at: new Date().toISOString(),
-      })
+      })  
       .eq("id", existing.id)
       .select("id")
       .single();

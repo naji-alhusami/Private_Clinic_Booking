@@ -34,7 +34,7 @@ export async function getClinicSettings(): Promise<ClinicSettings> {
   const { data, error } = await supabase
     .from("clinic_settings")
     .select(
-      "id, accept_online_bookings, booking_window_months, appointment_duration_minutes",
+      "id, accept_online_bookings, accept_new_patients, booking_window_months, appointment_duration_minutes",
     )
     .limit(2);
   if (error)

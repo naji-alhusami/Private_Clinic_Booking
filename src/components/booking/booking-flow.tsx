@@ -8,6 +8,9 @@ import BookingStepOne from "@/components/booking/booking-step-one/booking-step-o
 import BookingStepThree from "@/components/booking/booking-step-three/booking-step-three";
 import BookingStepTwo from "@/components/booking/booking-step-two/booking-step-two";
 import BookingSteps from "@/components/booking/booking-steps";
+import BookingEmailVerification, {
+  type BookingEmailVerificationProps,
+} from "@/components/booking/booking-email-verification";
 import BookingAppointmentSummary from "@/components/booking/booking-appointment-summary";
 import {
   generateBookingDates,
@@ -26,14 +29,39 @@ import {
   type BookingStepOneData,
 } from "@/lib/validators/BookingValidators";
 
+type EmailVerificationIntegration = Pick<
+  BookingEmailVerificationProps,
+  "status" | "isResending" | "codeIssueId" | "onCodeChange"
+> & {
+  // Invoke onVerified only after the future backend confirms this email's code.
+  onVerify: (email: string, code: string, onVerified: () => void) => void;
+  onResend: (email: string) => void;
+};
+
 export default function BookingFlow({
   openingHours,
   blockedDates,
+  acceptOnlineBookings,
+  acceptNewPatients,
+  requiresEmailVerification = false,
+  previewEmailVerification = false,
+  emailVerification,
 }: {
   openingHours: ClinicOpeningHours[];
   blockedDates: BlockedDate[];
+  requiresEmailVerification?: boolean;
+  previewEmailVerification?: boolean;
+  emailVerification?: EmailVerificationIntegration;
+
+  acceptOnlineBookings: boolean;
+  acceptNewPatients: boolean;
 }) {
   const [step, setStep] = useState<BookingStep>(1);
+  const isVerificationPreview =
+    process.env.NODE_ENV === "development" && previewEmailVerification;
+  const [screen, setScreen] = useState<"booking" | "email-verification">(
+    isVerificationPreview ? "email-verification" : "booking",
+  );
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isNewPatient, setIsNewPatient] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -59,6 +87,9 @@ export default function BookingFlow({
   // const stepOneComplete = isStepOneComplete(bookingData);
 
   const continueToStepTwo = async () => {
+    if (!acceptNewPatients && bookingData.patientType === "new") {
+      return;
+    }
     // Validate personal details with React Hook Form
     const personalDetailsValid = await form.trigger([
       "firstName",
@@ -98,6 +129,19 @@ export default function BookingFlow({
       return;
     }
 
+    if (
+      requiresEmailVerification ||
+      isVerificationPreview ||
+      process.env.NODE_ENV === "development"
+    ) {
+      setScreen("email-verification");
+      return;
+    }
+
+    openDateAndTime();
+  };
+
+  const openDateAndTime = () => {
     // Existing booking-date logic
     const bookingDates = generateBookingDates(openingHours, blockedDates);
 
@@ -113,6 +157,18 @@ export default function BookingFlow({
     }
 
     setStep(2);
+  };
+
+  // Only a future verification integration may call this; code entry and
+  // preview mode do not invoke it or grant verification to a booking request.
+  const handleEmailVerified = () => {
+    setScreen("booking");
+    openDateAndTime();
+  };
+
+  const returnToPatientDetails = () => {
+    setScreen("booking");
+    setStep(1);
   };
 
   const submitAppointment = async () => {
@@ -156,6 +212,21 @@ export default function BookingFlow({
     }
   };
 
+  if (!acceptOnlineBookings && !isVerificationPreview) {
+    return (
+      <div className="col-span-full mt-10 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm sm:p-12">
+        <h2 className="text-2xl font-bold text-red-800">
+          Online Booking Unavailable
+        </h2>
+
+        <p className="mx-auto mt-4 max-w-lg text-sm leading-7 text-slate-600 sm:text-base">
+          Online appointment booking is currently unavailable. Please contact
+          our clinic directly to schedule an appointment.
+        </p>
+      </div>
+    );
+  }
+
   if (isSubmitted) {
     return (
       <AppointmentRequestSuccess
@@ -182,19 +253,40 @@ export default function BookingFlow({
     <div className="contents xl:mt-10 xl:grid xl:grid-cols-[11rem_minmax(0,1fr)_12rem] xl:gap-6">
       <BookingSteps currentStep={step} />
 
-      <div className="contents xl:block xl:min-w-0 xl:[&>div]:mt-0">
-        {step === 1 && (
+      <div className="contents xl:block xl:min-w-0 xl:[&>div]:mt-0 xl:[&>section]:mt-0">
+        {screen === "email-verification" && (
+          <BookingEmailVerification
+            email={bookingData.email}
+            status={emailVerification?.status}
+            isResending={emailVerification?.isResending}
+            codeIssueId={emailVerification?.codeIssueId}
+            onCodeChange={emailVerification?.onCodeChange}
+            onVerify={(code) =>
+              emailVerification?.onVerify(
+                bookingData.email,
+                code,
+                handleEmailVerified,
+              )
+            }
+            onResend={() => emailVerification?.onResend(bookingData.email)}
+            onBack={returnToPatientDetails}
+            onChangeEmail={returnToPatientDetails}
+          />
+        )}
+
+        {screen === "booking" && step === 1 && (
           <FormProvider {...form}>
             <BookingStepOne
               bookingData={bookingData}
               updateBookingData={updateBookingData}
               errors={errors}
               onContinue={continueToStepTwo}
+              acceptNewPatients={acceptNewPatients}
             />
           </FormProvider>
         )}
 
-        {step === 2 && (
+        {screen === "booking" && step === 2 && (
           <BookingStepTwo
             openingHours={openingHours}
             blockedDates={blockedDates}
@@ -205,7 +297,7 @@ export default function BookingFlow({
           />
         )}
 
-        {step === 3 && (
+        {screen === "booking" && step === 3 && (
           <BookingStepThree
             bookingData={bookingData}
             onBack={() => setStep(2)}

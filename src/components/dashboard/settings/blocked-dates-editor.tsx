@@ -47,7 +47,7 @@ export function BlockedDatesEditor({
     <>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-bold uppercase tracking-wide text-teal-700">
+          <p className="text-sm font-bold uppercase tracking-wide text-teal-700">
             Availability
           </p>
           <h2

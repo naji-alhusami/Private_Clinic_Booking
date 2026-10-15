@@ -69,7 +69,7 @@ export default function BookingStepThree({
 }: BookingStepThreeProps) {
   const formattedDate = formatBookingDate(bookingData.appointmentDate);
   const fullAddress = `${bookingData.street}, ${bookingData.postalCode} ${bookingData.city}`;
-  // console.log("Booking Data:", bookingData);
+  
   return (
     <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
       <div className="flex items-start gap-3">

@@ -115,6 +115,7 @@ type BookingStepOneProps = {
   updateBookingData: UpdateBookingData;
   onContinue: () => void;
   // canContinue: boolean;
+  acceptNewPatients: boolean;
   errors?: Partial<Record<keyof BookingData, string>>;
 };
 
@@ -122,6 +123,7 @@ export default function BookingStepOne({
   bookingData,
   updateBookingData,
   onContinue,
+  acceptNewPatients,
   errors = {},
 }: BookingStepOneProps) {
   const form = useFormContext<BookingStepOneInput>();
@@ -132,6 +134,9 @@ export default function BookingStepOne({
 
   const showValidationNotice =
     continueAttempted && Object.keys(validationErrors).length > 0;
+
+  const newPatientRegistrationClosed =
+    !acceptNewPatients && bookingData.patientType === "new";
 
   return (
     <div className="mt-6 rounded-[1.75rem] border border-slate-200 bg-white p-5 shadow-xl shadow-slate-900/5 sm:p-8 lg:p-10">
@@ -156,117 +161,139 @@ export default function BookingStepOne({
               />
             ))}
           </div>
-        </fieldset>
-
-        <PatientPersonalDetails
-          bookingData={bookingData}
-          updateBookingData={updateBookingData}
-          errors={errors}
-        />
-
-        <div className="h-px bg-slate-100" />
-
-        {bookingData.patientType === "new" ? (
-          <NewPatientDetails
-            bookingData={bookingData}
-            updateBookingData={updateBookingData}
-          />
-        ) : (
-          <ExistingPatientDetails
-            bookingData={bookingData}
-            updateBookingData={updateBookingData}
-          />
-        )}
-
-        <div className="h-px bg-slate-100" />
-        <Controller
-          control={form.control}
-          name="insuranceType"
-          render={({ field, fieldState }) => (
-            <fieldset>
-              <legend
-                className={`text-xl font-semibold tracking-tight sm:text-2xl ${
-                  fieldState.error ? "text-red-600" : "text-slate-950"
-                }`}
-              >
-                Health Insurance <span>*</span>
-              </legend>
-
-              <p className="mt-2 text-sm leading-6 text-slate-500">
-                Select how your consultation will be covered.
+          {newPatientRegistrationClosed && (
+            <div
+              role="status"
+              className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4"
+            >
+              <p className="text-sm font-semibold text-amber-900">
+                New Patient Registration Unavailable
               </p>
 
-              <div className="mt-5 grid gap-4 xl:flex xl:gap-8">
-                {insuranceTypes.map((option) => (
-                  <ChoiceCard
-                    key={option.value}
-                    checked={field.value === option.value}
-                    onChange={() => {
-                      form.setValue("insuranceType", option.value, {
-                        shouldValidate: true,
-                        shouldTouch: true,
-                        shouldDirty: true,
-                      });
+              <p className="mt-2 text-sm leading-6 text-amber-800">
+                Our clinic is currently not accepting new patients. If you have
+                visited our clinic before, please select Existing Patient.
+                Otherwise, please contact our clinic for further assistance.
+              </p>
+            </div>
+          )}
+        </fieldset>
 
-                      updateBookingData({
-                        insuranceType: option.value,
-                      });
-                    }}
-                    name="insurance-type"
-                    {...option}
-                  />
-                ))}
-              </div>
+        {!newPatientRegistrationClosed && (
+          <>
+            <PatientPersonalDetails
+              bookingData={bookingData}
+              updateBookingData={updateBookingData}
+              errors={errors}
+            />
+            <div className="h-px bg-slate-100" />
 
-              <div className="mt-1.5 min-h-4">
-                {fieldState.error && (
-                  <p className="text-xs leading-4 text-red-600">
-                    {fieldState.error.message}
+            {bookingData.patientType === "new" ? (
+              <NewPatientDetails
+                bookingData={bookingData}
+                updateBookingData={updateBookingData}
+              />
+            ) : (
+              <ExistingPatientDetails
+                bookingData={bookingData}
+                updateBookingData={updateBookingData}
+              />
+            )}
+
+            <div className="h-px bg-slate-100" />
+            <Controller
+              control={form.control}
+              name="insuranceType"
+              render={({ field, fieldState }) => (
+                <fieldset>
+                  <legend
+                    className={`text-xl font-semibold tracking-tight sm:text-2xl ${
+                      fieldState.error ? "text-red-600" : "text-slate-950"
+                    }`}
+                  >
+                    Health Insurance <span>*</span>
+                  </legend>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-500">
+                    Select how your consultation will be covered.
+                  </p>
+
+                  <div className="mt-5 grid gap-4 xl:flex xl:gap-8">
+                    {insuranceTypes.map((option) => (
+                      <ChoiceCard
+                        key={option.value}
+                        checked={field.value === option.value}
+                        onChange={() => {
+                          form.setValue("insuranceType", option.value, {
+                            shouldValidate: true,
+                            shouldTouch: true,
+                            shouldDirty: true,
+                          });
+
+                          updateBookingData({
+                            insuranceType: option.value,
+                          });
+                        }}
+                        name="insurance-type"
+                        {...option}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="mt-1.5 min-h-4">
+                    {fieldState.error && (
+                      <p className="text-xs leading-4 text-red-600">
+                        {fieldState.error.message}
+                      </p>
+                    )}
+                  </div>
+                </fieldset>
+              )}
+            />
+
+            <div className="h-px bg-slate-100" />
+
+            <aside
+              aria-label="Emergency information"
+              className="flex gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-sm leading-6 text-slate-700 sm:p-5"
+            >
+              <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white text-amber-700 shadow-sm">
+                <Icon name="phone" className="size-4" />
+              </span>
+              <p>
+                Online appointment booking is not intended for medical
+                emergencies. In an emergency, please call{" "}
+                <strong className="font-semibold text-slate-950">112</strong>.
+              </p>
+            </aside>
+
+            <div className="flex flex-col items-center gap-2 sm:items-end">
+              <Button
+                type="button"
+                size="lg"
+                onClick={() => {
+                  setContinueAttempted(true);
+                  onContinue();
+                }}
+                disabled={
+                  !acceptNewPatients && bookingData.patientType === "new"
+                }
+                className="min-h-12 cursor-pointer rounded-xl bg-teal-700 px-6 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 sm:min-w-72"
+              >
+                Continue to Available Appointments
+                <Icon name="arrow" data-icon="inline-end" className="size-4" />
+              </Button>
+
+              <div className="min-h-4" aria-live="polite">
+                {showValidationNotice && (
+                  <p className="text-center text-xs font-medium text-red-600 sm:text-right">
+                    Please correct the highlighted fields before continuing.
                   </p>
                 )}
               </div>
-            </fieldset>
-          )}
-        />
-
-        <div className="h-px bg-slate-100" />
-
-        <aside
-          aria-label="Emergency information"
-          className="flex gap-3 rounded-2xl border border-amber-200/80 bg-amber-50/70 p-4 text-sm leading-6 text-slate-700 sm:p-5"
-        >
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-white text-amber-700 shadow-sm">
-            <Icon name="phone" className="size-4" />
-          </span>
-          <p>
-            Online appointment booking is not intended for medical emergencies.
-            In an emergency, please call{" "}
-            <strong className="font-semibold text-slate-950">112</strong>.
-          </p>
-        </aside>
-
-        <div className="flex flex-col items-center gap-2 sm:items-end">
-          <Button
-            type="button"
-            size="lg"
-            onClick={() => {
-              setContinueAttempted(true);
-              onContinue();
-            }}
-            className="min-h-12 cursor-pointer rounded-xl bg-teal-700 px-6 text-sm font-semibold text-white shadow-sm shadow-teal-950/15 hover:bg-teal-800 focus-visible:ring-teal-600/40 sm:min-w-72"
-          >
-            Continue to Available Appointments
-            <Icon name="arrow" data-icon="inline-end" className="size-4" />
-          </Button>
-
-          <div className="min-h-4" aria-live="polite">
-            {showValidationNotice && (
-              <p className="text-center text-xs font-medium text-red-600 sm:text-right">
-                Please correct the highlighted fields before continuing.
-              </p>
-            )}
-          </div>
-        </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

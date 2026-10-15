@@ -43,7 +43,7 @@ export default async function SettingsPage() {
             <RequestSettingsEditor settings={clinicSettings.value} />
           ) : (
             <>
-              <p className="text-xs font-bold uppercase tracking-wide text-teal-700">
+              <p className="text-sm font-bold uppercase tracking-wide text-teal-700">
                 Online booking
               </p>
 
@@ -76,7 +76,7 @@ export default async function SettingsPage() {
               <OpeningHoursEditor openingHours={openingHours.value} />
             ) : (
               <>
-                <p className="text-xs font-bold uppercase tracking-wide text-teal-700">
+                <p className="text-sm font-bold uppercase tracking-wide text-teal-700">
                   Clinic schedule
                 </p>
 
@@ -107,7 +107,7 @@ export default async function SettingsPage() {
               <BlockedDatesEditor blockedDates={blockedDates.value} />
             ) : (
               <>
-                <p className="text-xs font-bold uppercase tracking-wide text-teal-700">
+                <p className="text-sm font-bold uppercase tracking-wide text-teal-700">
                   Availability
                 </p>
 

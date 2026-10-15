@@ -1,4 +1,8 @@
-import { getBlockedDates, getClinicOpeningHours } from "@/lib/data/clinic";
+import {
+  getBlockedDates,
+  getClinicOpeningHours,
+  getClinicSettings,
+} from "@/lib/data/clinic";
 import type { Metadata } from "next";
 import BookingFlow from "@/components/booking/booking-flow";
 
@@ -8,10 +12,27 @@ export const metadata: Metadata = {
     "Start your private neurology appointment request with NeuroCare Private Clinic.",
 };
 
-export default async function BookAppointmentPage() {
-  const openingHours = await getClinicOpeningHours();
-  const blockedDates = await getBlockedDates();
-  
+export default async function BookAppointmentPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ previewEmailVerification?: string | string[] }>;
+}) {
+  // Local UI preview only. Production ignores this query parameter entirely.
+  const previewEmailVerification =
+    process.env.NODE_ENV === "development" &&
+    (await searchParams).previewEmailVerification === "1";
+  // The verification-only preview needs no clinic data or backend connection.
+  const openingHours = previewEmailVerification
+    ? []
+    : await getClinicOpeningHours();
+  const blockedDates = previewEmailVerification ? [] : await getBlockedDates();
+  const clinicSettings = previewEmailVerification
+    ? {
+        accept_online_bookings: true,
+        accept_new_patients: true,
+      }
+    : await getClinicSettings();
+
   return (
     <main className="relative bg-[#f7faf9] px-4 py-14 sm:px-6 sm:py-18 lg:px-8 lg:py-20 xl:px-0">
       <div aria-hidden="true" className="absolute inset-0 overflow-hidden">
@@ -32,7 +53,13 @@ export default async function BookAppointmentPage() {
             appointment.
           </p>
         </header>
-        <BookingFlow openingHours={openingHours} blockedDates={blockedDates} />
+        <BookingFlow
+          openingHours={openingHours}
+          blockedDates={blockedDates}
+          previewEmailVerification={previewEmailVerification}
+          acceptOnlineBookings={clinicSettings.accept_online_bookings}
+          acceptNewPatients={clinicSettings.accept_new_patients}
+        />
       </div>
     </main>
   );
